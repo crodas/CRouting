@@ -21,6 +21,7 @@ class templateTest extends PHPUnit_Framework_TestCase
         foreach(glob("tmp/*.php") as $file) {
             unlink($file);
         }
+        @mkdir('tmp');
     }
 
     public function testSimpleCRouting()
