@@ -1,0 +1,34 @@
+default:
+    pattern: /
+    defaults: {controller: 'foo', action:'bar'}
+
+index:
+    pattern: /{controller}/{action}
+    defaults: {action: 'index'}
+
+
+blog_post:
+    pattern: /post/{id}-{slug}/{page}
+    defaults: {controller: 'news', action: 'index', page: 0}
+    requirements:
+        page: \d+
+        id: \d+
+
+blog_post_two:
+    pattern: /history/year/{year}/{page}
+    defaults: {controller: 'news', action: 'history', page: 0}
+    requirements:
+        page: \d+
+        year: \d+
+
+longOptional:
+    pattern: /y/{three}/x/{four}a{five}b{six}.{ext}
+    defaults: {controller: 'news', action: 'history', three:3, four:4, five:5, six:6, ext: php}
+    requirements:
+        three: \d+
+        four: \d+
+        five: \d+
+        six:  \d+
+        ext:  php|xml|json
+
+
