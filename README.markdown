@@ -9,6 +9,9 @@ I believe I implemented a symfony-like URL routing. In order to keep things fast
 TODO:
 =====
 
+    * support for /* (so it can match with the base URL and anything else)
+    * add callback support on requirements
+    * support preg_match support on tokens
     * more tests
     * add array-to-url function
     * add docblock for methods
