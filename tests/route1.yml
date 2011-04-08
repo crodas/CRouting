@@ -35,3 +35,8 @@ onlyPostAndDelete:
     pattern: /
     defaults: {controller: 'request', action:'check'}
     requirements: { $method: POST|DELETE }
+
+checkMethod:
+    pattern: /get/foo
+    defaults: {controller: 'request', action:'check'}
+    requirements: { $method: POST|DELETE|ALL }

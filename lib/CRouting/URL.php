@@ -198,8 +198,13 @@ class CRouting_URL
         }
 
         if (isset($this->requirements['$method'])) {
-            $method = new CRouting_Requirement($this->requirements['$method']);
-            $expr[] = $method->getExpr(PHP::Variable('_SERVER', 'REQUEST_METHOD'));
+            $method    = new CRouting_Requirement($this->requirements['$method']);
+            $validator =  PHP::Expr('==', PHP::Variable('hasMethod'), true);
+            if (!$method->isString() || !in_array('ALL', $method->getOptions())) {
+                // check if the rule doesn't contain the word ALL
+                $expr[] = PHP::Expr('==', PHP::Variable('hasMethod'), true);
+                $expr[] = $method->getExpr(PHP::Variable('_SERVER', 'REQUEST_METHOD'));
+            }
         }
 
         foreach ($this->cUrl as $id => $segment) {

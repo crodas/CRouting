@@ -45,24 +45,53 @@
 class CRouting_Requirement
 {   
     protected $content;
+    protected $type;
+    protected $options;
 
     public function __construct($requirement)
     {
+        $this->parse($requirement);
+    }
+
+    protected function parse($requirement)
+    {
         $this->content = $requirement;
+        if ($requirement == '\d+') {
+            $this->type = 'number';
+        } else if (is_string($requirement)) {
+            $this->type    = 'string';
+            $this->options = explode("|", $requirement);
+        } else {
+            throw new CRouting_Exception('Dont know how to parse requirement ' . print_r($requirement, true));
+        }
+    }
+
+    public function isString()
+    {
+        return $this->type == 'string';
+    }
+
+    public function getOptions()
+    {
+        return $this->options;
     }
 
     public function getExpr($variable)
     {
         $expr = null;
-        if ($this->content == '\d+') {
+        switch ($this->type) {
+        case 'number':
             $expr = PHP::Exec('is_numeric', $variable);
-        } else {
+            break;
+        case 'string':
             $tmp = array();
-            foreach(explode('|', $this->content) as $value) {
+            foreach($this->options as $value) {
                 $tmp[] = PHP::Expr('==', $value, $variable);
             }
             $expr = PHP::ExprArray($tmp, 'OR');
+            break;
         }
         return $expr;
     }
+
 }

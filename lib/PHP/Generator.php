@@ -80,15 +80,16 @@ class PHP_Generator {
         $code  = '';
         if ($args[0]->getType() != 'Operator') {
             switch ($args[0]->getType()) {
-            case 'Expr':
             case 'Exec':
+            case 'Expr':
             case 'Assign':
                 if (count($args) > 1 && $args[1] InstanceOf PHP_Operator) {
                     $code .= ' ' . $args[1]  . ' ' . $this->generateExpr(array_slice($args, 2));
                 }
-                $expr = (string)$args[0];
-                if ($expr[0] != '(') {
-                    $expr = '(' . $expr . ')';
+                if ($args[0]->getType() == 'Exec') {
+                    $expr = $args[0];
+                } else {
+                    $expr = '(' . $args[0] . ')';
                 }
                 return $expr . $code;
             default:

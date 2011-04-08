@@ -178,8 +178,7 @@ class CRouting
         $function->addStmt($if);
 
         /* check if the request_method is set, if not, set it to empty to avoid warnings  */
-        $method = new PHP_If(PHP::Exec('empty', PHP::Variable('_SERVER', 'REQUEST_METHOD')));
-        $method->addStmt(PHP::Assign(PHP::Variable('_SERVER', 'REQUEST_METHOD'), ''));
+        $method = PHP::Assign('hasMethod', PHP::Exec('isset', PHP::Variable('_SERVER', 'REQUEST_METHOD')));
         $function->addStmt($method);
 
         for ($i = $size['min']; $i <= $size['max']; $i++) {

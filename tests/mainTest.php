@@ -66,6 +66,8 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/'), array('controller' => 'request', 'action' => 'check'));
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->assertEquals($route->match('/'), array('controller' => 'foo', 'action' => 'bar'));
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $this->assertEquals($route->match('/get/foo'), array('controller' => 'request', 'action' => 'check'));
     }
 
     public function testDoubleSlashes()

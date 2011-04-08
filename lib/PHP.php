@@ -192,25 +192,18 @@ abstract class PHP
     }
 
     public static function ExprArray($array, $operation='AND') {
-        /**
-         *  Convert validation array to expressions
-         */
-        $expr = null;
+        $tmp = array();
         foreach (array_chunk($array,2) as $rule) {
-            $rule[0] = new PHP_Expr($rule[0]);
-            if ($expr === null) {
-                if (count($rule) == 2) {
-                    $rule = array($operation, $rule[0], new PHP_Expr($rule[1]));
-                }
-                $expr = new PHP_Expr($rule);
-                continue;
-            }
-            $expr = PHP::Expr($operation, $expr, $rule[0]);
+            $tmp[] = $rule[0];
+            $tmp[] = $operation;
             if (!empty($rule[1])) {
-                $expr = PHP::Expr($operation, $expr, new PHP_Expr($rule[1]));
+                $tmp[] = $rule[1];
+                $tmp[] = $operation;
             }
         }
-        return $expr;
+        // remove the last $operator
+        array_pop($tmp);
+        return new PHP_Expr($tmp);
     }
 
     public static function Exec($name)
