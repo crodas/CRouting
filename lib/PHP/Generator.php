@@ -92,7 +92,7 @@ class PHP_Generator {
                 }
                 return $expr . $code;
             default:
-                throw new Exception("Malformed Expr");
+                throw new Exception("Malformed Expr. Unexpected: " . print_r($args, true));
             }
         }
         switch ((string)$args[0]) {

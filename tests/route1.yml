@@ -31,4 +31,7 @@ longOptional:
         six:  \d+
         ext:  php|xml|json
 
-
+onlyPostAndDelete:
+    pattern: /
+    defaults: {controller: 'request', action:'check'}
+    requirements: { $method: POST|DELETE }

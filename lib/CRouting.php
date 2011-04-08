@@ -128,6 +128,7 @@ class CRouting
             require_once $base . '/CRouting/URL.php';
             require_once $base . '/CRouting/Segment.php';
             require_once $base . '/CRouting/Token.php';
+            require_once $base . '/CRouting/Requirement.php';
             require_once $base . '/PHP.php';
             require_once $base . '/PHP/Generator.php';
             $loaded = true;
@@ -175,6 +176,11 @@ class CRouting
         $if->addStmt(PHP::Assign('length', PHP::Expr('-', PHP::Variable('length'), 1)));
 
         $function->addStmt($if);
+
+        /* check if the request_method is set, if not, set it to empty to avoid warnings  */
+        $method = new PHP_If(PHP::Exec('empty', PHP::Variable('_SERVER', 'REQUEST_METHOD')));
+        $method->addStmt(PHP::Assign(PHP::Variable('_SERVER', 'REQUEST_METHOD'), ''));
+        $function->addStmt($method);
 
         for ($i = $size['min']; $i <= $size['max']; $i++) {
             $if = new PHP_If(PHP::Expr('==', PHP::Variable('length'), $i));

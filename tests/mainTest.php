@@ -44,6 +44,7 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/y/2/x/88a99b00.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'xml'));
         $this->assertEquals($route->match('/y/2/x/88a99b00.json'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'json'));
 
+
         /* error */
         $this->assertEquals($route->match('/post/1-/99'), false);
         $this->assertEquals($route->match('/post/1-foo-bar-bar-foo.xml/xx'), false);
@@ -53,6 +54,18 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/history/year/2009/xxx'), false);
         $this->assertEquals($route->match('/y/2/x/88a99b00.asp'), false);
         $this->assertEquals($route->match('/y/2/x/88a99bxx.json'), false);
+    }
+
+    public function testRequestMethod()
+    {
+        $route = new CRouting('route1.yml', './tmp/');
+        $this->assertEquals($route->match('/'), array('controller' => 'foo', 'action' => 'bar'));
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $this->assertEquals($route->match('/'), array('controller' => 'request', 'action' => 'check'));
+        $_SERVER['REQUEST_METHOD'] = 'DELETE';
+        $this->assertEquals($route->match('/'), array('controller' => 'request', 'action' => 'check'));
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $this->assertEquals($route->match('/'), array('controller' => 'foo', 'action' => 'bar'));
     }
 
     public function testDoubleSlashes()

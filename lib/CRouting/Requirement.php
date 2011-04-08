@@ -36,79 +36,33 @@
 */
 
 /**
+ *  Simple Requirement Class
+ *
+ *  @todo Support for complex Regular expressions
+ *  @todo Callback support
  *
  */
-class CRounting_Token
-{
-    const CONSTANT = 1;
-    const VARIABLE = 2;
-    const INT = 3;
+class CRouting_Requirement
+{   
+    protected $content;
 
-    protected $value;
-    protected $type;
-    protected $default;
-    protected $requirement;
-
-    public function __construct($value, $type)
+    public function __construct($requirement)
     {
-        if ($type != 'variable' && $type != 'constant') {
-            throw new Exception('Token type must be variable or constant');
+        $this->content = $requirement;
+    }
+
+    public function getExpr($variable)
+    {
+        $expr = null;
+        if ($this->content == '\d+') {
+            $expr = PHP::Exec('is_numeric', $variable);
+        } else {
+            $tmp = array();
+            foreach(explode('|', $this->content) as $value) {
+                $tmp[] = PHP::Expr('==', $value, $variable);
+            }
+            $expr = PHP::ExprArray($tmp, 'OR');
         }
-        $this->value = $value;
-        $this->type  = $type == 'constant' ? self::CONSTANT : self::VARIABLE;
+        return $expr;
     }
-
-    public function setDefault($default)
-    {
-        $this->default = $default;
-    }
-
-    public function getDefault()
-    {
-        return $this->default;
-    }
-
-    public function setRequirement(CRouting_Requirement $requirement)
-    {
-        $this->requirement = $requirement;
-    }
-
-    public function getValidation($variable) 
-    {
-        if (empty($this->requirement)) {
-            return false;
-        }
-        return $this->requirement->getExpr($variable);
-    }
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    public function getValue()
-    {
-        return $this->value;
-    }
-
-    public function isConstant()
-    {
-        return $this->type == self::CONSTANT;
-    }
-
-    public function hasRequirement() 
-    {
-        return !empty($this->requirement);
-    }
-
-    public function isVariable()
-    {
-        return $this->type == self::VARIABLE;
-    }
-
-    public function isOptional()
-    {
-        return $this->isVariable() && !is_null($this->default);
-    }
-
 }

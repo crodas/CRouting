@@ -44,12 +44,14 @@ class CRouting_URL
     protected $url;
     protected $rules;
     protected $default;
+    protected $requirements;
 
-    public function __construct($url, Array $rules, Array $defaults)
+    public function __construct($url, Array $requirements, Array $defaults)
     {
-        $this->url     = $url;
-        $this->cUrl    = $this->compileURL($url, $rules, $defaults);
-        $this->default = $defaults;
+        $this->url           = $url;
+        $this->cUrl          = $this->compileURL($url, $requirements, $defaults);
+        $this->default       = $defaults;
+        $this->requirements  = $requirements;
         $this->compile();
     }
     
@@ -193,6 +195,11 @@ class CRouting_URL
         $ret = array();
         foreach ($this->default as $key => $value) {
             $ret[] = array(PHP::String($key), PHP::String($value));
+        }
+
+        if (isset($this->requirements['$method'])) {
+            $method = new CRouting_Requirement($this->requirements['$method']);
+            $ast[]  = $method->getExpr(PHP::Variable('_SERVER', 'REQUEST_METHOD'));
         }
 
         foreach ($this->cUrl as $id => $segment) {

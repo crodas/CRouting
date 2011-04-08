@@ -124,7 +124,7 @@ class CRouting_Segment
                 $tokenVar = $newvar;
             }
 
-            if ($token->hasRule()) {
+            if ($token->hasRequirement()) {
                 $rule = $token->getValidation($tokenVar);
                 if (!$rule instanceof PHP) {
                     continue;
@@ -157,14 +157,14 @@ class CRouting_Segment
      *
      *  @return void
      */
-    public function addToken($type, $value, $default=null, $rule=null)
+    public function addToken($type, $value, $default=null, $requirement=null)
     {
         $token = new CRounting_Token($value, $type);
         if (!is_null($default)) {
             $token->setDefault($default);
         }
-        if ($rule) {
-            $token->setRule($rule);
+        if ($requirement) {
+            $token->setRequirement(new CRouting_Requirement($requirement));
         }
         $this->tokens[] = $token;
     }
