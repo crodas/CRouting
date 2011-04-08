@@ -191,6 +191,15 @@ abstract class PHP
         return new PHP_Expr(func_get_args());
     }
 
+    public static function zArray($array)
+    {
+        $obj = new PHP_Array;
+        foreach ($array as $key => $value) {
+            $obj->addMember($key, $value);
+        }
+        return $obj;
+    }
+
     public static function ExprArray($array, $operation='AND') {
         $tmp = array();
         foreach (array_chunk($array,2) as $rule) {

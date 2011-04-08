@@ -61,6 +61,12 @@ class CRouting_Requirement
         } else if (is_string($requirement)) {
             $this->type    = 'string';
             $this->options = explode("|", $requirement);
+        } else if (is_array($requirement) && isset($requirement['callback'])) {
+            if (!is_callable($requirement['callback'])) {
+                throw new CRouting_Exception('Invalid callback  ' . print_r($requirement['callback'], true)) ;
+            }
+            $this->type    = 'callback';
+            $this->options = $requirement['callback'];
         } else {
             throw new CRouting_Exception('Dont know how to parse requirement ' . print_r($requirement, true));
         }
@@ -80,6 +86,9 @@ class CRouting_Requirement
     {
         $expr = null;
         switch ($this->type) {
+        case 'callback':
+            $expr = PHP::Exec($this->options, $variable);
+            break; 
         case 'number':
             $expr = PHP::Exec('is_numeric', $variable);
             break;

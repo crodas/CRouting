@@ -65,8 +65,8 @@ class PHP_Generator {
     }
 
     public function generateExec($args) {
-        if (isset($this->exec[$args[0]])) {
-            $args[0] = $this->exec[$args[0]];
+        if (is_array($args[0])) {
+            $args[0] = implode("::", $args[0]);
         }
         return "{$args[0]}({$args[1]})";
     }

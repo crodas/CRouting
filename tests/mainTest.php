@@ -2,6 +2,19 @@
 
 require "../lib/CRouting.php";
 
+function mycustom_validator($segment)
+{
+    return $segment == 'foo';
+}
+
+class Validator 
+{
+    public static function test($segment)
+    {
+        return $segment == 'bar';
+    }
+}
+
 class templateTest extends PHPUnit_Framework_TestCase
 {
     public function testInvalidArgs() 
@@ -26,7 +39,7 @@ class templateTest extends PHPUnit_Framework_TestCase
 
     public function testSimpleCRouting()
     {
-        $route = new CRouting('route1.yml', './tmp/');
+        $route = new CRouting('route_simple.yml', './tmp/');
         $this->assertEquals($route->match('/'), array('controller' => 'foo', 'action' => 'bar'));
         $this->assertEquals($route->match('/bar'), array('controller' => 'bar', 'action' => 'index'));
         $this->assertEquals($route->match('/foo/bar'), array('controller' => 'foo', 'action' => 'bar'));
@@ -58,7 +71,7 @@ class templateTest extends PHPUnit_Framework_TestCase
 
     public function testRequestMethod()
     {
-        $route = new CRouting('route1.yml', './tmp/');
+        $route = new CRouting('route_simple.yml', './tmp/');
         $this->assertEquals($route->match('/'), array('controller' => 'foo', 'action' => 'bar'));
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->assertEquals($route->match('/'), array('controller' => 'request', 'action' => 'check'));
@@ -72,7 +85,7 @@ class templateTest extends PHPUnit_Framework_TestCase
 
     public function testDoubleSlashes()
     {
-        $route = new CRouting('route1.yml', './/tmp//');
+        $route = new CRouting('route_simple.yml', './/tmp//');
         $this->assertEquals($route->match('//'), array('controller' => 'foo', 'action' => 'bar'));
         $this->assertEquals($route->match('//bar'), array('controller' => 'bar', 'action' => 'index'));
         $this->assertEquals($route->match('//foo//bar'), array('controller' => 'foo', 'action' => 'bar'));
@@ -125,6 +138,21 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/'), array('foo' => 1));
 
         CRouting::setParser(array('sfYaml', 'load'));
+    }
+
+    public function testCallbackValidation()
+    {
+        $route = new CRouting('route_callback.yml', './tmp/');
+        $this->assertEquals($route->match('/foo'), array('action' => 'foo', 'page' => 0));
+        $this->assertEquals($route->match('/foo/1'), array('action' => 'foo', 'page' => 1));
+        $this->assertEquals($route->match('/foo/x'), false);
+        $this->assertEquals($route->match('/bar'), array('action' => 'bar', 'page' => 0));
+        $this->assertEquals($route->match('/bar/1'), array('action' => 'bar', 'page' => 1));
+        $this->assertEquals($route->match('/foo/x'), false);
+        $this->assertEquals($route->match('/xfoo'), false);
+        $this->assertEquals($route->match('/xfoo/1'), false);
+        $this->assertEquals($route->match('/xbar'), false);
+        $this->assertEquals($route->match('/xbar/1'), false);
     }
 
     public function __demo($str)

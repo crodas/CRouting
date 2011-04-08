@@ -1,5 +1,5 @@
 <?php
-function route9038b1016be28ed01debcdabaa3a1ad1($url) {
+function routedadf7c866d8d2102949155e22bba90ea($url) {
 	$curl = preg_replace('/^\\/+|(\\/)+|\\?.*/','$1',$url);
 	$parts = explode('/',$curl);
 	$length = count($parts);
