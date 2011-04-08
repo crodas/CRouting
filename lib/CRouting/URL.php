@@ -150,10 +150,10 @@ class CRouting_URL
     {
         $req   = preg_replace("/^\/+|(\/)+|\?.*/", '$1', $url);
         $parts = explode('/', $req);
-        $last  = count($parts) - 1;
+        $lexpr  = count($parts) - 1;
 
-        if (empty($parts[$last])) {
-            unset($parts[$last]);
+        if (empty($parts[$lexpr])) {
+            unset($parts[$lexpr]);
         }
 
         return $parts;
@@ -180,26 +180,26 @@ class CRouting_URL
     protected function compile()
     {
         $size = $this->getSize();
-        $ast  = array();
+        $expr = array();
         for ($i=$size['min']; $i <= $size['max']; $i++) {
-            $ast[$i] = $this->compileRule($size['max'] - $i);
+            $expr[$i] = $this->compileRule($size['max'] - $i);
         }
-        $this->rules = $ast;
+        $this->rules = $expr;
     }
 
     protected function compileRule($skip=0)
     {
-        $cur = 0;
-        $ast = array();
-        $i   = 0;
-        $ret = array();
+        $cur  = 0;
+        $expr = array();
+        $i    = 0;
+        $ret  = array();
         foreach ($this->default as $key => $value) {
             $ret[] = array(PHP::String($key), PHP::String($value));
         }
 
         if (isset($this->requirements['$method'])) {
             $method = new CRouting_Requirement($this->requirements['$method']);
-            $ast[]  = $method->getExpr(PHP::Variable('_SERVER', 'REQUEST_METHOD'));
+            $expr[] = $method->getExpr(PHP::Variable('_SERVER', 'REQUEST_METHOD'));
         }
 
         foreach ($this->cUrl as $id => $segment) {
@@ -209,15 +209,15 @@ class CRouting_URL
                 $cur++;
             } else {
                 $variable = PHP::Variable('parts', $i++);
-                $expr = $segment->getValidationExpr($variable, &$ret);
-                if ($expr instanceof PHP) {
-                    $ast[] = $expr;
+                $tempExpr = $segment->getValidationExpr($variable, &$ret);
+                if ($tempExpr instanceof PHP) {
+                    $expr[] = $tempExpr;
                 }
             }
         }
         $return = PHP::Exec('return', new PHP_Array($ret));
-        if (count($ast)) {
-            $base = new PHP_IF(PHP::ExprArray($ast));
+        if (count($expr)) {
+            $base = new PHP_IF(PHP::ExprArray($expr));
             $base->addStmt(new PHP_Comment($this->url));
             $base->addStmt($return);
         } else {
