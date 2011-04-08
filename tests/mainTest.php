@@ -140,6 +140,16 @@ class templateTest extends PHPUnit_Framework_TestCase
         CRouting::setParser(array('sfYaml', 'load'));
     }
 
+    public function testInvalidCallbackValidation()
+    {
+        try {
+            $route = new CRouting('route_callback_invalid.yml', './tmp/');
+            $this->assertTrue(false);
+        } catch (CRouting_Exception $e) {
+            $this->assertTrue(true);
+        }
+    }
+
     public function testCallbackValidation()
     {
         $route = new CRouting('route_callback.yml', './tmp/');
