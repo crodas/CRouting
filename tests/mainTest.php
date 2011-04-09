@@ -168,7 +168,7 @@ class templateTest extends PHPUnit_Framework_TestCase
     public function __demo($str)
     {
         $this->assertEquals($str, __FILE__);
-        return array(array('pattern' => '/', 'defaults' => array('foo' => 1)));
+        return array('foobar' => array('pattern' => '/', 'defaults' => array('foo' => 1)));
     }
 
     public function __invalid($str)

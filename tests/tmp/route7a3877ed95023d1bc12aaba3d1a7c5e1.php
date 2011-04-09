@@ -34,3 +34,15 @@ function route7a3877ed95023d1bc12aaba3d1a7c5e1($url) {
 	}
 	return(false);
 }
+
+function route7a3877ed95023d1bc12aaba3d1a7c5e1Build($name,$rules) {
+	/* array to URL */
+	switch ($name) {
+		case 'class':
+			break;
+
+		case 'function':
+			break;
+
+	}
+}

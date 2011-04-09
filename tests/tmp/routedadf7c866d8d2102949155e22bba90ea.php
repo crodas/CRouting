@@ -62,3 +62,30 @@ function routedadf7c866d8d2102949155e22bba90ea($url) {
 	}
 	return(false);
 }
+
+function routedadf7c866d8d2102949155e22bba90eaBuild($name,$rules) {
+	/* array to URL */
+	switch ($name) {
+		case 'checkMethod':
+			break;
+
+		case 'onlyPostAndDelete':
+			break;
+
+		case 'longOptional':
+			break;
+
+		case 'blog_post_two':
+			break;
+
+		case 'blog_post':
+			break;
+
+		case 'index':
+			break;
+
+		case 'default':
+			break;
+
+	}
+}

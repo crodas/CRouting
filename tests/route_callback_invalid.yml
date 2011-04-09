@@ -1,4 +1,4 @@
-function:
+functionxx:
     pattern: /{action}/{page}
     defaults: {page:0}
     requirements:

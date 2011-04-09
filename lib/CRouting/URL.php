@@ -46,12 +46,28 @@ class CRouting_URL
     protected $default;
     protected $requirements;
 
-    public function __construct($url, Array $requirements, Array $defaults)
+    public function __construct(Array $definition)
     {
-        $this->url           = $url;
-        $this->cUrl          = $this->compileURL($url, $requirements, $defaults);
-        $this->default       = $defaults;
-        $this->requirements  = $requirements;
+        if (!is_array($definition)) {
+            throw new CRouting_Exception('Invalid argument');
+        }
+        foreach (array('pattern', 'name') as $check) {
+            if (empty($definition[$check])) {
+                throw new CRouting_Exception('Missing ' . $check . ' or it is empty');
+            }
+        }
+
+        foreach (array('requirements', 'defaults') as $optional) {
+            if (empty($definition[$optional])) {
+                $definition[$optional] = array();
+            }
+        }
+
+        $this->name         = $definition['name'];
+        $this->url          = $definition['pattern'];
+        $this->default      = $definition['defaults'];
+        $this->requirements = $definition['requirements'];
+        $this->cUrl         = $this->compileURL($this->url, $this->requirements, $this->default);
         $this->compile();
     }
     
@@ -160,7 +176,12 @@ class CRouting_URL
     }
     // }}}
 
-    public function getSize($debug=true)
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function getSize()
     {
         $min = $max = 0;
         foreach ($this->cUrl as $token) {

@@ -141,17 +141,8 @@ class CRouting
         $compiled = array();
         $size     = array('min' => 0xffffff, 'max' => 0);
         foreach ($data as $name => $def) {
-            if (empty($def['pattern'])) {
-                throw new Exception($name . ': Missing pattern');
-            }
-
-            foreach (array('requirements', 'defaults') as $type) {
-                if (empty($def[$type])) {
-                    $def[$type] = array();
-                }
-            }
-
-            $url = new CRouting_URL($def['pattern'], $def['requirements'], $def['defaults']);
+            $def['name'] = $name;
+            $url = new CRouting_URL($def);
             $tmp = $url->getSize();
             if ($tmp['min'] < $size['min']) {
                 $size['min'] = $tmp['min'];
@@ -163,23 +154,23 @@ class CRouting
             $compiled[] = $url;
         }
 
-        $function = new PHP_Function($this->callback, array(PHP::Variable('url')), array());
+        $matchFunction = new PHP_Function($this->callback, array(PHP::Variable('url')), array());
 
         /* clean up URL */
-        $function->addStmt(PHP::Assign('curl',   PHP::Exec('preg_replace', "/^\/+|(\/)+|\?.*/", '$1', PHP::Variable('url'))));
-        $function->addStmt(PHP::Assign('parts',  PHP::Exec('explode', PHP::String('/'), PHP::Variable('curl'))));
-        $function->addStmt(PHP::Assign('length', PHP::Exec('count', PHP::Variable('parts'))));
+        $matchFunction->addStmt(PHP::Assign('curl',   PHP::Exec('preg_replace', "/^\/+|(\/)+|\?.*/", '$1', PHP::Variable('url'))));
+        $matchFunction->addStmt(PHP::Assign('parts',  PHP::Exec('explode', PHP::String('/'), PHP::Variable('curl'))));
+        $matchFunction->addStmt(PHP::Assign('length', PHP::Exec('count', PHP::Variable('parts'))));
 
         $last = PHP::Variable('parts', PHP::Expr('-', PHP::Variable('length'), 1));
         $if = new PHP_If(PHP::Exec('empty', $last));
         $if->addStmt(PHP::Exec('unset', $last));
         $if->addStmt(PHP::Assign('length', PHP::Expr('-', PHP::Variable('length'), 1)));
 
-        $function->addStmt($if);
+        $matchFunction->addStmt($if);
 
         /* check if the request_method is set, if not, set it to empty to avoid warnings  */
         $method = PHP::Assign('hasMethod', PHP::Exec('isset', PHP::Variable('_SERVER', 'REQUEST_METHOD')));
-        $function->addStmt($method);
+        $matchFunction->addStmt($method);
 
         $switch = new PHP_Switch(PHP::Variable('length'));
         for ($i = $size['min']; $i <= $size['max']; $i++) {
@@ -194,11 +185,20 @@ class CRouting
                 $switch->addCase($case);
             }
         }
-        $function->addStmt($switch);
-        $function->addStmt(PHP::Exec('return', false));
+        $matchFunction->addStmt($switch);
+        $matchFunction->addStmt(PHP::Exec('return', false));
+
+        $createFunction = new PHP_Function($this->callback . 'Build', array(PHP::Variable('name'), PHP::Variable('rules')));
+        $createFunction->addStmt(new PHP_Comment('array to URL'));
+        $switch = new PHP_Switch(PHP::Variable('name'));
+        foreach ($compiled as $url) {
+            $case = new PHP_Case($url->getName());
+            $switch->addCase($case);
+        }
+        $createFunction->addStmt($switch);
 
         /* improve it later, to avoid concurrency issues (look at Haanga) */
-        file_put_contents($this->tmp, "<?php\n" . $function, LOCK_EX);
+        file_put_contents($this->tmp, "<?php\n" . $matchFunction . "\n" . $createFunction, LOCK_EX);
     }
     /* }}} */
 
