@@ -208,6 +208,11 @@ class CRouting_URL
         $this->rules = $expr;
     }
 
+    public function requireMethodChecking()
+    {
+        return isset($this->requirements['$method']);
+    }
+
     protected function compileRule($skip=0)
     {
         $cur  = 0;
@@ -218,7 +223,7 @@ class CRouting_URL
             $ret[] = array(PHP::String($key), PHP::String($value));
         }
 
-        if (isset($this->requirements['$method'])) {
+        if ($this->requireMethodChecking()) {
             $method    = new CRouting_Requirement($this->requirements['$method']);
             $validator =  PHP::Expr('==', PHP::Variable('hasMethod'), true);
             if (!$method->isString() || !in_array('ALL', $method->getOptions())) {

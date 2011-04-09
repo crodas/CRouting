@@ -7,7 +7,6 @@ function route7a3877ed95023d1bc12aaba3d1a7c5e1($url) {
 		unset($parts[$length - 1]);
 		$length = $length - 1;
 	}
-	$hasMethod = isset($_SERVER['REQUEST_METHOD']);
 	switch ($length) {
 		case 1:
 			if ((Validator::test($parts[0]))) {

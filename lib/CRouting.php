@@ -154,6 +154,7 @@ class CRouting
             $compiled[] = $url;
         }
 
+        /* create match function {{{ */
         $matchFunction = new PHP_Function($this->callback, array(PHP::Variable('url')), array());
 
         /* clean up URL */
@@ -168,16 +169,15 @@ class CRouting
 
         $matchFunction->addStmt($if);
 
-        /* check if the request_method is set, if not, set it to empty to avoid warnings  */
-        $method = PHP::Assign('hasMethod', PHP::Exec('isset', PHP::Variable('_SERVER', 'REQUEST_METHOD')));
-        $matchFunction->addStmt($method);
 
         $switch = new PHP_Switch(PHP::Variable('length'));
+        $useMethod = false;
         for ($i = $size['min']; $i <= $size['max']; $i++) {
             $case = new PHP_Case($i);
             foreach ($compiled as $url) {
                 $code = $url->getRule($i);
                 if ($code) {
+                    $useMethod |= $url->requireMethodChecking();
                     $case->addStmt($code);
                 }
             }
@@ -185,9 +185,18 @@ class CRouting
                 $switch->addCase($case);
             }
         }
+
+        if ($useMethod) {
+            /* check if the request_method is set, if not, set it to empty to avoid warnings  */
+            $method = PHP::Assign('hasMethod', PHP::Exec('isset', PHP::Variable('_SERVER', 'REQUEST_METHOD')));
+            $matchFunction->addStmt($method);
+        }
+
         $matchFunction->addStmt($switch);
         $matchFunction->addStmt(PHP::Exec('return', false));
+        /* }}} */
 
+        // array to URL function {{{
         $createFunction = new PHP_Function($this->callback . 'Build', array(PHP::Variable('name'), PHP::Variable('rules')));
         $createFunction->addStmt(new PHP_Comment('array to URL'));
         $switch = new PHP_Switch(PHP::Variable('name'));
@@ -196,9 +205,11 @@ class CRouting
             $switch->addCase($case);
         }
         $createFunction->addStmt($switch);
+        // }}}
 
         /* improve it later, to avoid concurrency issues (look at Haanga) */
-        file_put_contents($this->tmp, "<?php\n" . $matchFunction . "\n" . $createFunction, LOCK_EX);
+        $code = "<?php\n" . $matchFunction . "\n" . $createFunction;
+        file_put_contents($this->tmp, $code, LOCK_EX);
     }
     /* }}} */
 
