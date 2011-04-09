@@ -8,25 +8,29 @@ function route7a3877ed95023d1bc12aaba3d1a7c5e1($url) {
 		$length = $length - 1;
 	}
 	$hasMethod = isset($_SERVER['REQUEST_METHOD']);
-	if ($length == 1) {
-		if ((Validator::test($parts[0]))) {
-			/* /{action}/{page} */
-			return(array('action' => $parts[0], 'page' => '0'));
-		}
-		if ((mycustom_validator($parts[0]))) {
-			/* /{action}/{page} */
-			return(array('action' => $parts[0], 'page' => '0'));
-		}
-	}
-	if ($length == 2) {
-		if ((Validator::test($parts[0])) AND (is_numeric($parts[1]))) {
-			/* /{action}/{page} */
-			return(array('action' => $parts[0], 'page' => $parts[1]));
-		}
-		if ((mycustom_validator($parts[0])) AND (is_numeric($parts[1]))) {
-			/* /{action}/{page} */
-			return(array('action' => $parts[0], 'page' => $parts[1]));
-		}
+	switch ($length) {
+		case 1:
+			if ((Validator::test($parts[0]))) {
+				/* /{action}/{page} */
+				return(array('action' => $parts[0], 'page' => '0'));
+			}
+			if ((mycustom_validator($parts[0]))) {
+				/* /{action}/{page} */
+				return(array('action' => $parts[0], 'page' => '0'));
+			}
+			break;
+
+		case 2:
+			if ((Validator::test($parts[0])) AND (is_numeric($parts[1]))) {
+				/* /{action}/{page} */
+				return(array('action' => $parts[0], 'page' => $parts[1]));
+			}
+			if ((mycustom_validator($parts[0])) AND (is_numeric($parts[1]))) {
+				/* /{action}/{page} */
+				return(array('action' => $parts[0], 'page' => $parts[1]));
+			}
+			break;
+
 	}
 	return(false);
 }

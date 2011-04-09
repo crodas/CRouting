@@ -181,21 +181,22 @@ class CRouting
         $method = PHP::Assign('hasMethod', PHP::Exec('isset', PHP::Variable('_SERVER', 'REQUEST_METHOD')));
         $function->addStmt($method);
 
+        $switch = new PHP_Switch(PHP::Variable('length'));
         for ($i = $size['min']; $i <= $size['max']; $i++) {
-            $if = new PHP_If(PHP::Expr('==', PHP::Variable('length'), $i));
+            $case = new PHP_Case($i);
             foreach ($compiled as $url) {
                 $code = $url->getRule($i);
                 if ($code) {
-                    // offset in strings, only if needed
-                    $if->addStmt($code);
+                    $case->addStmt($code);
                 }
             }
-            if ($if->getNodeSize()) {
-                $function->addStmt($if);
+            if ($case->getNodeSize()) {
+                $switch->addCase($case);
             }
         }
+        $function->addStmt($switch);
         $function->addStmt(PHP::Exec('return', false));
-        
+
         /* improve it later, to avoid concurrency issues (look at Haanga) */
         file_put_contents($this->tmp, "<?php\n" . $function, LOCK_EX);
     }

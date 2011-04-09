@@ -148,10 +148,7 @@ abstract class PHP
 
         $class = 'generate' . $this->getType();
 
-        if (empty($code)) {
-            $body = $generator->nodes($this->nodes);
-            $code = $generator->$class($this->getAttributes(), $body);
-        }
+        $code = $generator->$class($this->getAttributes(), $this->nodes);
 
         return $code;
     }
@@ -425,6 +422,27 @@ final class PHP_Exec extends PHP
             $this->attrs[1] = new PHP_StmtList(array());
         }
         $this->attrs[1]->push($param);
+    }
+}
+
+final class PHP_Case extends PHP_Blocks
+{
+    function __construct($pattern, $code = array(), $line=0)
+    {
+        parent::__construct(self::convertNative($pattern), $code, $line);
+    }
+}
+
+final class PHP_Switch extends PHP
+{
+    function __construct(PHP $expr, $line=0)
+    {
+        parent::__construct(array(), array($expr), $line);
+    }
+
+    function addCase(PHP_Case $case)
+    {
+        $this->nodes[] = $case;
     }
 }
 

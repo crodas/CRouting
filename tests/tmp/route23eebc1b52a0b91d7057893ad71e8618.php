@@ -8,8 +8,11 @@ function route23eebc1b52a0b91d7057893ad71e8618($url) {
 		$length = $length - 1;
 	}
 	$hasMethod = isset($_SERVER['REQUEST_METHOD']);
-	if ($length == 0) {
-		return(array('foo' => '1'));
+	switch ($length) {
+		case 0:
+			return(array('foo' => '1'));
+			break;
+
 	}
 	return(false);
 }

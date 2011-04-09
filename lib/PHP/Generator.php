@@ -71,6 +71,17 @@ class PHP_Generator {
         return "{$args[0]}({$args[1]})";
     }
 
+    public function generateSwitch($args, $nodes)
+    {
+        return "switch ({$args[0]}) " . $this->nodes($nodes);
+    }
+
+    public function generateCase($args, $nodes)
+    {
+        $nodes[] = 'break';    
+        return 'case ' . $args[0]  . ":\n"  . $this->nodes($nodes, false, true) . "\n";
+    }
+
     public function generateBool($args) {
         return $args[0] ? 'true' : 'false';
     }
@@ -123,42 +134,42 @@ class PHP_Generator {
         return "echo {$args[0]}";
     }
 
-    public function generateElse($args, $body) {
-        return "else {$body}";
+    public function generateElse($args, $nodes) {
+        return "else {$nodes}";
     }
 
-    public function generateIf($args, $body) {
-        return "if ({$args[0]}) {$body}";
+    public function generateIf($args, $nodes) {
+        return "if ({$args[0]}) " . $this->nodes($nodes);
     }
 
 
-    public function generateFunction($args, $body) {
-        $code = "function {$args[0]}({$args[1]}) {$body}";
+    public function generateFunction($args, $nodes) {
+        $code = "function {$args[0]}({$args[1]}) " . $this->nodes($nodes);
         return $code;
     }
 
-    public function generateClass($args, $body) {
-        return "class {$args[0]} {$body}";
+    public function generateClass($args, $nodes) {
+        return "class {$args[0]} " . $this->nodes($nodes);
     }
 
 
-    public function blockClass($args, $body) {
-        $code = "class {$args[0]} {$body}";
+    public function blockClass($args, $nodes) {
+        $code = "class {$args[0]} " . $this->nodes($nodes);
         return $code;
     }
 
-    public function generateForEach($args, $body) {
+    public function generateForEach($args, $nodes) {
         $code = "foreach ({$args[0]} as ";
         if (!empty($args[1])) {
             $code .= "{$args[1]} => ";
         }
-        $code .= " {$args[2]}) {$body}";
+        $code .= " {$args[2]}) " . $this->nodes($nodes);
         return $code;
     }
 
     public function generateComment($string)
     {
-        return "/* $string[0] */\n";
+        return "/* {$string[0]} */\n";
     }
 
     public function doReturn($args)
@@ -166,7 +177,7 @@ class PHP_Generator {
         return "return " .$args[0];
     }
 
-    public function nodes($array, $newBlock=true) {
+    public function nodes($array, $newBlock=true, $justIdent=false) {
         if (empty($array)) {
             return "";
         }
@@ -174,6 +185,9 @@ class PHP_Generator {
             $this->ident++;
             $code  = "{\n";
         } else {
+            if ($justIdent) {
+                $this->ident++;
+            }
             $code = '';
         }
             
@@ -194,6 +208,8 @@ class PHP_Generator {
         }
         if ($newBlock) {
             $code .=  "{$pident}}\n";
+            $this->ident--;
+        } else if ($justIdent) {
             $this->ident--;
         }
         return $code;
