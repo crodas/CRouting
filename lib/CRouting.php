@@ -175,7 +175,7 @@ class CRouting
         for ($i = $size['min']; $i <= $size['max']; $i++) {
             $case = new PHP_Case($i);
             foreach ($compiled as $url) {
-                $code = $url->getRule($i);
+                $code = $url->getMatchRule($i);
                 if ($code) {
                     $useMethod |= $url->requireMethodChecking();
                     $case->addStmt($code);

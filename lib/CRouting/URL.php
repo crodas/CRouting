@@ -68,7 +68,7 @@ class CRouting_URL
         $this->default      = $definition['defaults'];
         $this->requirements = $definition['requirements'];
         $this->cUrl         = $this->compileURL($this->url, $this->requirements, $this->default);
-        $this->compile();
+        $this->compileMatch();
     }
     
     // toString {{{
@@ -176,11 +176,26 @@ class CRouting_URL
     }
     // }}}
 
+    // getName() {{{
+    /**
+     *  Get URL Name
+     *
+     *  @return string 
+     */
     public function getName()
     {
         return $this->name;
     }
+    // }}}
 
+    // getSize() {{{
+    /**
+     *  Get the size of the current URL. This
+     *  return the minimun and maximun number of 
+     *  segments that are evaluated for this URL.
+     *
+     *  @return array
+     */
     public function getSize()
     {
         $min = $max = 0;
@@ -192,28 +207,62 @@ class CRouting_URL
         }
         return compact('min', 'max');
     }
+    // }}}
 
-    public function getRule($id)
+    // getMatchRule {{{
+    /**
+     *  Return the PHP object representing the current URL
+     *  checking of a given segment checking.
+     *
+     *  @param int $length Current length
+     *
+     *  @return PHP
+     */
+    public function getMatchRule($length)
     {
-        return isset($this->rules[$id]) ? $this->rules[$id] : false;
+        return isset($this->rules[$length]) ? $this->rules[$length] : false;
     }
+    // }}}
 
-    protected function compile()
-    {
-        $size = $this->getSize();
-        $expr = array();
-        for ($i=$size['min']; $i <= $size['max']; $i++) {
-            $expr[$i] = $this->compileRule($size['max'] - $i);
-        }
-        $this->rules = $expr;
-    }
-
+    // {{{
+    /**
+     *  Check if the current URL relies on request
+     *  method checking.
+     *
+     *  @return bool
+     */
     public function requireMethodChecking()
     {
         return isset($this->requirements['$method']);
     }
+    // }}}
 
-    protected function compileRule($skip=0)
+    // compileMatch() {{{
+    /**
+     *  Compile rules to match or not the current URL pattern
+     *
+     *  @return void
+     */
+    protected function compileMatch()
+    {
+        $size = $this->getSize();
+        $expr = array();
+        for ($i=$size['min']; $i <= $size['max']; $i++) {
+            $expr[$i] = $this->compileMatchRule($size['max'] - $i);
+        }
+        $this->rules = $expr;
+    }
+    // }}}
+
+    // compileMatchRule {{{
+    /**
+     *  Compile a match rule for a given size
+     *
+     *  @param int $skip Number of optional segments to avoid
+     *
+     *  @return PHP
+     */
+    protected function compileMatchRule($skip=0)
     {
         $cur  = 0;
         $expr = array();
@@ -256,4 +305,6 @@ class CRouting_URL
         }
         return $base;
     }
+    // }}}
+
 }
