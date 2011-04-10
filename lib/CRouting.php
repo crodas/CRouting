@@ -123,7 +123,7 @@ class CRouting
             /* load everything, don't relay on any autoloader */
             $base = dirname(__FILE__);
             if (self::$parser == 'sfYaml::load') {
-                require_once $base . '/sfYaml.php';
+                require_once $base . '/vendor/sfYaml.php';
             }
             require_once $base . '/CRouting/URL.php';
             require_once $base . '/CRouting/Segment.php';
@@ -175,7 +175,7 @@ class CRouting
         for ($i = $size['min']; $i <= $size['max']; $i++) {
             $case = new PHP_Case($i);
             foreach ($compiled as $url) {
-                $code = $url->getMatchRule($i);
+                $code = $url->getMatchCode($i);
                 if ($code) {
                     $useMethod |= $url->requireMethodChecking();
                     $case->addStmt($code);
@@ -197,11 +197,11 @@ class CRouting
         /* }}} */
 
         // array to URL function {{{
-        $createFunction = new PHP_Function($this->callback . 'Build', array(PHP::Variable('name'), PHP::Variable('rules')));
+        $createFunction = new PHP_Function($this->callback . 'Build', array(PHP::Variable('name'), PHP::Variable('parts')));
         $createFunction->addStmt(new PHP_Comment('array to URL'));
         $switch = new PHP_Switch(PHP::Variable('name'));
         foreach ($compiled as $url) {
-            $case = new PHP_Case($url->getName());
+            $case = new PHP_Case($url->getName(), $url->getGeneratorCode());
             $switch->addCase($case);
         }
         $createFunction->addStmt($switch);

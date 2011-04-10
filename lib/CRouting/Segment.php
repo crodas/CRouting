@@ -186,4 +186,23 @@ class CRouting_Segment
     }
     // }}}
 
+    function getVariables()
+    {
+        $tokens = array();
+        foreach ($this->tokens as $id => $token) {
+            if ($token->isVariable()) {
+                $tokens[] = $token;
+            }
+        }
+        return $tokens;
+    }
+
+    function getAll()
+    {
+        $tokens = array();
+        foreach ($this->tokens as $id => $token) {
+            $tokens[] = $token;
+        }
+        return $tokens;
+    }
 }

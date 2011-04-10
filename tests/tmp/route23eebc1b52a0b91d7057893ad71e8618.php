@@ -16,10 +16,11 @@ function route23eebc1b52a0b91d7057893ad71e8618($url) {
 	return(false);
 }
 
-function route23eebc1b52a0b91d7057893ad71e8618Build($name,$rules) {
+function route23eebc1b52a0b91d7057893ad71e8618Build($name,$parts) {
 	/* array to URL */
 	switch ($name) {
 		case 'foobar':
+			return(true);
 			break;
 
 	}

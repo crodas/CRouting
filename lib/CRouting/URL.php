@@ -42,9 +42,11 @@ class CRouting_URL
 
     protected $cUrl;
     protected $url;
-    protected $rules;
     protected $default;
     protected $requirements;
+
+    protected $match;
+    protected $generator;
 
     public function __construct(Array $definition)
     {
@@ -67,8 +69,9 @@ class CRouting_URL
         $this->url          = $definition['pattern'];
         $this->default      = $definition['defaults'];
         $this->requirements = $definition['requirements'];
-        $this->cUrl         = $this->compileURL($this->url, $this->requirements, $this->default);
+        $this->cUrl         = $this->compilePattern();
         $this->compileMatch();
+        $this->compileGenerator();
     }
     
     // toString {{{
@@ -78,20 +81,17 @@ class CRouting_URL
     }
     // }}}
 
-    // compileURL {{{
+    // compilePattern {{{
     /**
-     *  Compile a givne URL, returning an array of CRouting_Segement object.
+     *  Compile a given URL, returning an array of CRouting_Segement object.
      *
-     *  @param string $url
-     *  @param array  $rules
-     *  @param array  $defaults
      *
      *  @return Array
      */
-    protected function compileURL($url, $rules, &$defaults)
+    protected function compilePattern()
     {
         $parts = array();
-        foreach ($this->getURIPath($url) as $id => $part) {
+        foreach ($this->getURIPath($this->url) as $id => $part) {
             $state  = self::E_STRING;
             $buffer = ""; 
             $length = strlen($part);
@@ -126,12 +126,12 @@ class CRouting_URL
 
                     $default = null;
                     $rule    = null;
-                    if (isset($defaults[$buffer])) {
-                        $default = $defaults[$buffer];
-                        unset($defaults[$buffer]);
+                    if (isset($this->default[$buffer])) {
+                        $default = $this->default[$buffer];
+                        unset($this->default[$buffer]);
                     }
-                    if (isset($rules[$buffer])) {
-                        $rule = $rules[$buffer];
+                    if (isset($this->requirements[$buffer])) {
+                        $rule = $this->requirements[$buffer];
                     }
                     $parts[$id]->addToken('variable', $buffer, $default, $rule);
                     $buffer  = '';
@@ -209,7 +209,7 @@ class CRouting_URL
     }
     // }}}
 
-    // getMatchRule {{{
+    // getMatchCode {{{
     /**
      *  Return the PHP object representing the current URL
      *  checking of a given segment checking.
@@ -218,13 +218,26 @@ class CRouting_URL
      *
      *  @return PHP
      */
-    public function getMatchRule($length)
+    public function getMatchCode($length)
     {
-        return isset($this->rules[$length]) ? $this->rules[$length] : false;
+        return isset($this->match[$length]) ? $this->match[$length] : false;
     }
     // }}}
 
-    // {{{
+    // getGeneratorCode {{{
+    /**
+     *  Get code of the URL generator
+     *
+     *
+     *  @return PHP
+     */
+    public function getGeneratorCode()
+    {
+        return $this->generator;
+    }
+    // }}}
+
+    // requireMethodChecking {{{
     /**
      *  Check if the current URL relies on request
      *  method checking.
@@ -239,7 +252,7 @@ class CRouting_URL
 
     // compileMatch() {{{
     /**
-     *  Compile rules to match or not the current URL pattern
+     *  Compile matching rules to match or not the current URL pattern
      *
      *  @return void
      */
@@ -250,7 +263,7 @@ class CRouting_URL
         for ($i=$size['min']; $i <= $size['max']; $i++) {
             $expr[$i] = $this->compileMatchRule($size['max'] - $i);
         }
-        $this->rules = $expr;
+        $this->match = $expr;
     }
     // }}}
 
@@ -306,5 +319,40 @@ class CRouting_URL
         return $base;
     }
     // }}}
+
+    protected function compileGenerator()
+    {
+        $check = array();
+        $code  = array();
+        foreach ($this->cUrl as $segment) {
+            foreach ($segment->getVariables() as $var) {
+                $varName = PHP::Variable('parts', $var->getValue());
+                if (!$var->isOptional()) {
+                    $check[] = PHP::Exec('empty', $varName);
+                } else {
+                    $defIf = new PHP_If(PHP::Exec('empty', $varName));
+                    $defIf->addStmt(PHP::Assign($varName, PHP::String($var->getDefault())));
+                    $code[] = $defIf;
+                }
+            }
+        }
+        if (count($check) > 0) {
+            $if = new PHP_If(PHP::ExprArray($check, 'OR'));
+            $if->addStmt(PHP::Exec('return', false));
+            array_unshift($code, $if);
+        }
+
+        foreach ($this->cUrl as $segment) {
+            foreach ($segment->getAll() as $token) {
+                if ($token->isVariable()) {
+                } else {
+                }
+            }
+        }
+
+        $code[] = PHP::Exec('return', true);
+        $this->generator = $code;
+    
+    }
 
 }

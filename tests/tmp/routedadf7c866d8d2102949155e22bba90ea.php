@@ -63,28 +63,68 @@ function routedadf7c866d8d2102949155e22bba90ea($url) {
 	return(false);
 }
 
-function routedadf7c866d8d2102949155e22bba90eaBuild($name,$rules) {
+function routedadf7c866d8d2102949155e22bba90eaBuild($name,$parts) {
 	/* array to URL */
 	switch ($name) {
 		case 'checkMethod':
+			return(true);
 			break;
 
 		case 'onlyPostAndDelete':
+			return(true);
 			break;
 
 		case 'longOptional':
+			if (empty($parts['three'])) {
+				$parts['three'] = '3';
+			}
+			if (empty($parts['four'])) {
+				$parts['four'] = '4';
+			}
+			if (empty($parts['five'])) {
+				$parts['five'] = '5';
+			}
+			if (empty($parts['six'])) {
+				$parts['six'] = '6';
+			}
+			if (empty($parts['ext'])) {
+				$parts['ext'] = 'php';
+			}
+			return(true);
 			break;
 
 		case 'blog_post_two':
+			if (empty($parts['year'])) {
+				return(false);
+			}
+			if (empty($parts['page'])) {
+				$parts['page'] = '0';
+			}
+			return(true);
 			break;
 
 		case 'blog_post':
+			if (empty($parts['id']) OR empty($parts['slug'])) {
+				return(false);
+			}
+			if (empty($parts['page'])) {
+				$parts['page'] = '0';
+			}
+			return(true);
 			break;
 
 		case 'index':
+			if (empty($parts['controller'])) {
+				return(false);
+			}
+			if (empty($parts['action'])) {
+				$parts['action'] = 'index';
+			}
+			return(true);
 			break;
 
 		case 'default':
+			return(true);
 			break;
 
 	}

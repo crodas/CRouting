@@ -34,13 +34,27 @@ function route7a3877ed95023d1bc12aaba3d1a7c5e1($url) {
 	return(false);
 }
 
-function route7a3877ed95023d1bc12aaba3d1a7c5e1Build($name,$rules) {
+function route7a3877ed95023d1bc12aaba3d1a7c5e1Build($name,$parts) {
 	/* array to URL */
 	switch ($name) {
 		case 'class':
+			if (empty($parts['action'])) {
+				return(false);
+			}
+			if (empty($parts['page'])) {
+				$parts['page'] = '0';
+			}
+			return(true);
 			break;
 
 		case 'function':
+			if (empty($parts['action'])) {
+				return(false);
+			}
+			if (empty($parts['page'])) {
+				$parts['page'] = '0';
+			}
+			return(true);
 			break;
 
 	}
