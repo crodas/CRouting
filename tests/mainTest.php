@@ -190,4 +190,12 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->generate('blog_post', array('id' => 1)), false);
     }
 
+    public function testRegex()
+    {
+        $route = new CRouting('route_regex.yml', './tmp/');
+        $this->assertEquals($route->match('/foofoo'), array('action' => 'foofoo', 'page' => 0));
+        $this->assertEquals($route->match('/foobarfoo'), array('action' => 'foobarfoo', 'page' => 0));
+        $this->assertEquals($route->match('/fooxxxfoo'), array('action' => 'fooxxxfoo', 'page' => 0));
+        $this->assertEquals($route->match('/xxxfoo'), array('action' => 'xxxfoo'));
+    }
 }

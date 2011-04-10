@@ -1,0 +1,12 @@
+regex1:
+    pattern: /{action}/{page}
+    defaults: {page:0}
+    requirements:
+        action: {regex: /^foo(:?bar|xxx)?foo$/}
+        page: \d+
+
+regex2:
+    pattern: /{action}
+    requirements:
+        action: /^(:?bar|xxx)?foo$/
+

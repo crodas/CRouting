@@ -59,6 +59,10 @@ class CRouting_Requirement
         if ($requirement == '\d+') {
             $this->type = 'number';
         } else if (is_string($requirement)) {
+            if ($requirement[0] == substr($requirement, -1) && $requirement[0] == '/') {
+                $this->parse(array('regex' => $requirement));
+                return;
+            }
             $this->type    = 'string';
             $this->options = explode("|", $requirement);
         } else if (is_array($requirement) && isset($requirement['callback'])) {
@@ -67,6 +71,9 @@ class CRouting_Requirement
             }
             $this->type    = 'callback';
             $this->options = $requirement['callback'];
+        } else if (is_array($requirement) && isset($requirement['regex'])) {
+            $this->type    = 'regex';
+            $this->options = $requirement['regex'];
         } else {
             throw new CRouting_Exception('Dont know how to parse requirement ' . print_r($requirement, true));
         }
@@ -91,6 +98,9 @@ class CRouting_Requirement
             break; 
         case 'number':
             $expr = PHP::Exec('is_numeric', $variable);
+            break;
+        case 'regex':
+            $expr = PHP::Exec('preg_match', $this->options, $variable);
             break;
         case 'string':
             $tmp = array();

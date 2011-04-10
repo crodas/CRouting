@@ -10,8 +10,8 @@ TODO:
 =====
 
   * support for /* (so it can match with the base URL and anything else)
-  * support preg_match support on tokens
   * more tests
   * add array-to-url function
   * add docblock for methods
   * documentation
+  * use substr_compare for simple comparition
