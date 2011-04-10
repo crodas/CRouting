@@ -11,11 +11,11 @@ function route7a3877ed95023d1bc12aaba3d1a7c5e1($url) {
 		case 1:
 			if ((Validator::test($parts[0]))) {
 				/* /{action}/{page} */
-				return(array('action' => $parts[0], 'page' => '0'));
+				return(array('action' => $parts[0], 'page' => 0));
 			}
 			if ((mycustom_validator($parts[0]))) {
 				/* /{action}/{page} */
-				return(array('action' => $parts[0], 'page' => '0'));
+				return(array('action' => $parts[0], 'page' => 0));
 			}
 			break;
 
@@ -42,9 +42,9 @@ function route7a3877ed95023d1bc12aaba3d1a7c5e1Build($name,$parts) {
 				return(false);
 			}
 			if (empty($parts['page'])) {
-				$parts['page'] = '0';
+				$parts['page'] = 0;
 			}
-			return(true);
+			return('/'.$parts['action'].'/'.$parts['page']);
 			break;
 
 		case 'function':
@@ -52,9 +52,9 @@ function route7a3877ed95023d1bc12aaba3d1a7c5e1Build($name,$parts) {
 				return(false);
 			}
 			if (empty($parts['page'])) {
-				$parts['page'] = '0';
+				$parts['page'] = 0;
 			}
-			return(true);
+			return('/'.$parts['action'].'/'.$parts['page']);
 			break;
 
 	}

@@ -93,6 +93,11 @@ class CRouting
     }
     // }}}
 
+    function generate($type, $args=array())
+    {
+        return call_user_func($this->callback . 'Build', $type, $args);
+    }
+
     // match {{{
     /**
      *  Public interface to test if a given URL matches

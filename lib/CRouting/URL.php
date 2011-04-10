@@ -342,15 +342,22 @@ class CRouting_URL
             array_unshift($code, $if);
         }
 
+        $url = new PHP_String('');
+        if (count($this->cUrl) == 0) {
+            $url->append('/');
+        }
         foreach ($this->cUrl as $segment) {
+            $url->append('/');
             foreach ($segment->getAll() as $token) {
                 if ($token->isVariable()) {
+                    $url->append(PHP::Variable('parts', $token->getValue()));
                 } else {
+                    $url->append($token->getValue());
                 }
             }
         }
 
-        $code[] = PHP::Exec('return', true);
+        $code[] = PHP::Exec('return', $url);
         $this->generator = $code;
     
     }

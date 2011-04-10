@@ -45,7 +45,20 @@ class PHP_Generator {
     );
 
     public function generateString($args) {
-        return  "'" . addslashes($args[0]) . "'";
+        $code = '';
+        foreach ($args as $str) {
+            if (is_string($str)) {
+                if (substr($code, -2) == "'.") {
+                    $code = substr($code, 0, -2) . addslashes($str) . "'.";
+                } else {
+                    $code .= "'". addslashes($str) . "'."; 
+                }
+            } else {
+                $code .=  $str . "."; 
+            }
+        }
+
+        return  substr($code, 0, -1);
     }
 
     public function generateOperator($args) {

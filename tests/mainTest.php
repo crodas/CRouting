@@ -176,5 +176,18 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($str, __FILE__);
     }
 
+    public function testSimpleGeneration()
+    {
+        $route = new CRouting('route_simple.yml', './tmp/');
+        $this->assertEquals($route->generate('default'), '/');
+        $this->assertEquals($route->generate('onlyPostAndDelete'), '/');
+        $this->assertEquals($route->generate('checkMethod'), '/get/foo');
+        $this->assertEquals($route->generate('index', array('controller' => 'foo')), '/foo/index');
+        $this->assertEquals($route->generate('index', array('controller' => 'foo', 'action' => 'bar')), '/foo/bar');
+        $this->assertEquals($route->generate('blog_post', array('id' => 1, 'slug' => 'foo-bar')), '/post/1-foo-bar/0');
+
+        $this->assertEquals($route->generate('index', array()), false);
+        $this->assertEquals($route->generate('blog_post', array('id' => 1)), false);
+    }
 
 }

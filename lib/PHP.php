@@ -304,6 +304,10 @@ final class PHP_Number extends PHP_BlockSimple
 
 final class PHP_String extends PHP_BlockSimple
 {
+    function append($part) 
+    {
+        $this->attrs[] = $part;
+    }
 }
 
 final class PHP_Comment extends PHP_BlockSimple

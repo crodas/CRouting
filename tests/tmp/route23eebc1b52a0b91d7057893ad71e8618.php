@@ -9,7 +9,7 @@ function route23eebc1b52a0b91d7057893ad71e8618($url) {
 	}
 	switch ($length) {
 		case 0:
-			return(array('foo' => '1'));
+			return(array('foo' => 1));
 			break;
 
 	}
@@ -20,7 +20,7 @@ function route23eebc1b52a0b91d7057893ad71e8618Build($name,$parts) {
 	/* array to URL */
 	switch ($name) {
 		case 'foobar':
-			return(true);
+			return('/');
 			break;
 
 	}
