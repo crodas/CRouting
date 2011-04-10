@@ -1,0 +1,7 @@
+default:
+    pattern: /
+    defaults: {controller: 'home', action: 'index'}
+
+normal:
+    pattern: /{controller}/{action}
+    defaults: {action: 'index'}
