@@ -107,6 +107,10 @@ class CRouting_Requirement
                     $expr = PHP::Exec('ctype_alpha', $variable);
                     break;
                 }
+            case '/^\d+$/':
+            case '/^[0-9]+$/':
+                $expr = PHP::Exec('is_numeric', $variable);
+                break;
             default:
                 $expr = PHP::Exec('preg_match', $this->options, $variable);
                 break;

@@ -11,8 +11,8 @@ blog_post:
     pattern: /post/{id}-{slug}/{page}
     defaults: {controller: 'news', action: 'index', page: 0}
     requirements:
-        page: \d+
-        id: \d+
+        page: /^\d+$/
+        id: /^[0-9]+$/
 
 blog_post_two:
     pattern: /history/year/{year}/{page}
