@@ -56,6 +56,7 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/y/2/x/88a99b.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 6, 'ext' => 'xml'));
         $this->assertEquals($route->match('/y/2/x/88a99b00.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'xml'));
         $this->assertEquals($route->match('/y/2/x/88a99b00.json'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'json'));
+        $this->assertEquals($route->match('/page/99'), array('controller' => 'page', 'action' => 'index', 'foo' => 99));
 
 
         /* error */
@@ -67,6 +68,8 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/history/year/2009/xxx'), false);
         $this->assertEquals($route->match('/y/2/x/88a99b00.asp'), false);
         $this->assertEquals($route->match('/y/2/x/88a99bxx.json'), false);
+        $this->assertEquals($route->match('/y/2/x/88a99.88b00.json'), false);
+        $this->assertEquals($route->match('/page/00'), false);
     }
 
     public function testRequestMethod()

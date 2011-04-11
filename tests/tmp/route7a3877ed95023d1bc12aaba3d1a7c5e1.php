@@ -20,11 +20,11 @@ function route7a3877ed95023d1bc12aaba3d1a7c5e1($url) {
 			break;
 
 		case 2:
-			if ((Validator::test($parts[0])) AND (is_numeric($parts[1]))) {
+			if ((Validator::test($parts[0])) AND ((false === strpos($parts[1],'.') AND is_numeric($parts[1])))) {
 				/* /{action}/{page} */
 				return(array('action' => $parts[0], 'page' => $parts[1]));
 			}
-			if ((mycustom_validator($parts[0])) AND (is_numeric($parts[1]))) {
+			if ((mycustom_validator($parts[0])) AND ((false === strpos($parts[1],'.') AND is_numeric($parts[1])))) {
 				/* /{action}/{page} */
 				return(array('action' => $parts[0], 'page' => $parts[1]));
 			}

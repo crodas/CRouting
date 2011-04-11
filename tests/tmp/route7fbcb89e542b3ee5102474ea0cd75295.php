@@ -24,7 +24,7 @@ function route7fbcb89e542b3ee5102474ea0cd75295($url) {
 				/* /something/{action} */
 				return(array('action' => $parts[1]));
 			}
-			if ((preg_match('/^foo(:?bar|xxx)?foo$/',$parts[0])) AND (is_numeric($parts[1]))) {
+			if ((preg_match('/^foo(:?bar|xxx)?foo$/',$parts[0])) AND ((false === strpos($parts[1],'.') AND is_numeric($parts[1])))) {
 				/* /{action}/{page} */
 				return(array('action' => $parts[0], 'page' => $parts[1]));
 			}

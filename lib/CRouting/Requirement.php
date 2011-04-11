@@ -57,7 +57,8 @@ class CRouting_Requirement
     {
         $this->content = $requirement;
         if ($requirement == '\d+') {
-            $this->type = 'number';
+            $this->options = '/^\d+$/';
+            $this->type = 'regex';
         } else if (is_string($requirement)) {
             if ($requirement[0] == substr($requirement, -1) && $requirement[0] == '/') {
                 $this->parse(array('regex' => $requirement));
@@ -71,10 +72,22 @@ class CRouting_Requirement
             }
             $this->type    = 'callback';
             $this->options = $requirement['callback'];
-        } else if (is_array($requirement) && isset($requirement['regex'])) {
-            $this->type    = 'regex';
-            $this->options = $requirement['regex'];
-        } else {
+        } else if (is_array($requirement)) {
+            if (isset($requirement['regex'])) {
+                $this->type    = 'regex';
+                $this->options = $requirement['regex'];
+            }
+            if (isset($requirement['type'])) {
+                switch  ($requirement['type']) {
+                case 'int':
+                case 'integer':
+                    $this->type = $requirement['type'];
+                    break;
+                }
+            }
+        }
+        
+        if (empty($this->type)) {
             throw new CRouting_Exception('Dont know how to parse requirement ' . print_r($requirement, true));
         }
     }
@@ -89,15 +102,26 @@ class CRouting_Requirement
         return $this->options;
     }
 
+    protected function validateAsInt($variable, $strict=true) {
+        $useFilter = false;
+        if ($strict && is_callable('filter_list')) {
+            $useFilter = in_array('int', filter_list());
+        }
+        if ($useFilter) {
+            $expr = PHP::Expr('!==', false, PHP::Exec('filter_var', $variable, new PHP_Constant('FILTER_VALIDATE_INT')));
+        } else {
+            /* use is_numeric, but it will also validate float */
+            $expr = PHP::Expr('===', false, PHP::Exec('strpos', $variable, '.'), 'AND', PHP::Exec('is_numeric', $variable));
+        }
+        return $expr;
+    }
+
     public function getExpr($variable)
     {
         $expr = null;
         switch ($this->type) {
         case 'callback':
             $expr = PHP::Exec($this->options, $variable);
-            break; 
-        case 'number':
-            $expr = PHP::Exec('is_numeric', $variable);
             break;
         case 'regex':
             switch ($this->options) {
@@ -109,12 +133,16 @@ class CRouting_Requirement
                 }
             case '/^\d+$/':
             case '/^[0-9]+$/':
-                $expr = PHP::Exec('is_numeric', $variable);
+                $expr = $this->validateAsInt($variable, false);
                 break;
             default:
                 $expr = PHP::Exec('preg_match', $this->options, $variable);
                 break;
             }
+            break;
+        case 'integer':
+        case 'int':
+            $expr = $this->validateAsInt($variable);
             break;
         case 'string':
             $tmp = array();

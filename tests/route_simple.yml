@@ -5,6 +5,8 @@ default:
 index:
     pattern: /{controller}/{action}
     defaults: {action: 'index'}
+    requirements:
+        action: /^[a-zA-Z]+$/
 
 
 blog_post:
@@ -40,3 +42,9 @@ checkMethod:
     pattern: /get/foo
     defaults: {controller: 'request', action:'check'}
     requirements: { $method: POST|DELETE|ALL }
+
+checkType:
+    pattern: /page/{foo}
+    defaults: {controller: 'page', action:'index'}
+    requirements:
+        foo: {type: int}

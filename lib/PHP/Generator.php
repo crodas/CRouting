@@ -61,6 +61,11 @@ class PHP_Generator {
         return  substr($code, 0, -1);
     }
 
+    public function generateConstant($args)
+    {
+        return $args[0];
+    }
+
     public function generateOperator($args) {
         return $args[0];
     }
