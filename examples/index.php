@@ -13,3 +13,6 @@ $routing = new CRouting('./simple.yml', './generated');
 var_dump($routing->match('/'));
 var_dump($routing->match('/zcontroller'));
 var_dump($routing->match('/zcontroller/zaction'));
+var_dump($routing->match('/1-zaction.html'));
+var_dump($routing->match('/1-zaction.js'));
+var_dump($routing->match('/foo-zaction.js'));

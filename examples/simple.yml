@@ -5,3 +5,13 @@ default:
 normal:
     pattern: /{controller}/{action}
     defaults: {action: 'index'}
+    requirements:
+        controller: /^[a-zA-Z][a-zA-Z0-9]+$/
+    
+
+blog_post:
+    pattern: /{foo}-{bar}.{ext}
+    defaults: {action: 'index', ext: php}
+    requirements:
+        foo: \d+
+        ext: php|html|js
