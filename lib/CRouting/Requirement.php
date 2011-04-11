@@ -125,19 +125,26 @@ class CRouting_Requirement
             break;
         case 'regex':
             switch ($this->options) {
+            case '/^[a-zA-Z][a-zA-Z0-9]+$/':
+                if (is_callable('ctype_alpha') && is_callable('ctype_alnum')) {
+                    $first = clone $variable;
+                    $first->addIndex(0);
+                    $expr = PHP::Expr('AND', PHP::Exec('ctype_alnum', $variable), PHP::Exec('ctype_alpha', $first));
+                } 
+                break;
             case '/^[a-zA-Z]+$/':
             case '/^[A-Za-z]+$/':
                 if (is_callable('ctype_alpha')) {
                     $expr = PHP::Exec('ctype_alpha', $variable);
-                    break;
-                }
+                } 
+                break;
             case '/^\d+$/':
             case '/^[0-9]+$/':
                 $expr = $this->validateAsInt($variable, false);
                 break;
-            default:
+            }
+            if ($expr === null) {
                 $expr = PHP::Exec('preg_match', $this->options, $variable);
-                break;
             }
             break;
         case 'integer':

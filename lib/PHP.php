@@ -359,6 +359,12 @@ final class PHP_Variable extends PHP
         }
         parent::__construct(array(),  $def, $line);
     }
+
+    public function addIndex($index) 
+    {
+        $this->attrs[] = PHP::convertNative($index);
+        return $this;
+    }
 }
 
 final class PHP_Assign extends PHP
