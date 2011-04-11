@@ -129,7 +129,7 @@ class CRouting_Requirement
                 if (is_callable('ctype_alpha') && is_callable('ctype_alnum')) {
                     $first = clone $variable;
                     $first->addIndex(0);
-                    $expr = PHP::Expr('AND', PHP::Exec('ctype_alnum', $variable), PHP::Exec('ctype_alpha', $first));
+                    $expr = PHP::Expr('AND', PHP::Exec('ctype_alpha', $first), PHP::Exec('ctype_alnum', $variable));
                 } 
                 break;
             case '/^[a-zA-Z]+$/':
