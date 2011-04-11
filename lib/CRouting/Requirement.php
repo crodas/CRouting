@@ -100,7 +100,17 @@ class CRouting_Requirement
             $expr = PHP::Exec('is_numeric', $variable);
             break;
         case 'regex':
-            $expr = PHP::Exec('preg_match', $this->options, $variable);
+            switch ($this->options) {
+            case '/^[a-zA-Z]+$/':
+            case '/^[A-Za-z]+$/':
+                if (is_callable('ctype_alpha')) {
+                    $expr = PHP::Exec('ctype_alpha', $variable);
+                    break;
+                }
+            default:
+                $expr = PHP::Exec('preg_match', $this->options, $variable);
+                break;
+            }
             break;
         case 'string':
             $tmp = array();

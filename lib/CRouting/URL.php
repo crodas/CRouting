@@ -359,7 +359,6 @@ class CRouting_URL
 
         $code[] = PHP::Exec('return', $url);
         $this->generator = $code;
-    
     }
 
 }

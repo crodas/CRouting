@@ -10,3 +10,7 @@ regex2:
     requirements:
         action: /^(:?bar|xxx)?foo$/
 
+regex3:
+    pattern: /something/{action}
+    requirements:
+        action: /^[a-zA-Z]+$/

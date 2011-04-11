@@ -197,5 +197,8 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/foobarfoo'), array('action' => 'foobarfoo', 'page' => 0));
         $this->assertEquals($route->match('/fooxxxfoo'), array('action' => 'fooxxxfoo', 'page' => 0));
         $this->assertEquals($route->match('/xxxfoo'), array('action' => 'xxxfoo'));
+        $this->assertEquals($route->match('/something/xxxfoo'), array('action' => 'xxxfoo'));
+        $this->assertEquals($route->match('/something/xxxFOO'), array('action' => 'xxxFOO'));
+        $this->assertEquals($route->match('/something/xxxOO9'), false);
     }
 }
