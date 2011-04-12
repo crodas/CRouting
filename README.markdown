@@ -17,10 +17,18 @@ TODO:
             defaults: {ext: json}
             requirements:
                 ext: php|json|xml
-        
+        bar:
+            pattern: /{foo}bar{ext}
+            defaults: {ext: json}
+            requirements:
+                ext: php|json|xml
+            
         --
         /something (match)
         /something.php (match)
+        /extrabarjson (match)
+        /extrabarphp (match)
+        /extrabar (match)
         /something. (will fail)
 
   * Add validation to the URL generation function. Return nice URL if some optional parametter is missing
