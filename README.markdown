@@ -10,8 +10,21 @@ TODO:
 =====
 
   * support for /* (so it can match with the base URL and anything else)
-  * more tests
-  * add array-to-url function
+  * Add concept of URL separators (single char):
+
+        foo:
+            pattern: /{foo}.{ext}
+            defaults: {ext: json}
+            requirements:
+                ext: php|json|xml
+        
+        --
+        /something (match)
+        /something.php (match)
+        /something. (will fail)
+
+  * Add validation to the URL generation function. Return nice URL if some optional parametter is missing
   * add docblock for methods
   * documentation
   * use substr_compare for simple comparition
+
