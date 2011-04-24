@@ -50,6 +50,8 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/history/year/2010/1'), array('controller' => 'news', 'action' => 'history', 'year' => 2010, 'page' => 1));
         $this->assertEquals($route->match('/history/year/2009'), array('controller' => 'news', 'action' => 'history', 'year' => 2009, 'page' => 0));
         $this->assertEquals($route->match('/y/x/ab.'), array('controller' => 'news', 'action' => 'history', 'three' => 3, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'));
+        $this->assertEquals($route->match('/y/x/ab'), array('controller' => 'news', 'action' => 'history', 'three' => 3, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'));
+        $this->assertEquals($route->match('/y/2/x/ab'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'));
         $this->assertEquals($route->match('/y/2/x/ab.'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'));
         $this->assertEquals($route->match('/y/2/x/ab.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'xml'));
         $this->assertEquals($route->match('/y/2/x/a99b.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 99, 'six' => 6, 'ext' => 'xml'));
@@ -58,6 +60,9 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/y/2/x/88a99b00.json'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'json'));
         $this->assertEquals($route->match('/page/99'), array('controller' => 'page', 'action' => 'index', 'foo' => 99));
 
+        $this->assertEquals($route->match('/rest/archive..'), array('controller' => 'rest', 'action' => 'status', 'id' => 'archive', 'format' => 'json'));
+        $this->assertEquals($route->match('/rest/archive.foo.'), array('controller' => 'rest', 'action' => 'foo', 'id' => 'archive', 'format' => 'json'));
+        $this->assertEquals($route->match('/rest/archive.foo.php'), array('controller' => 'rest', 'action' => 'foo', 'id' => 'archive', 'format' => 'php'));
 
         /* error */
         $this->assertEquals($route->match('/post/1-/99'), false);

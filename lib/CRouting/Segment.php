@@ -69,22 +69,33 @@ class CRouting_Segment
          *  detect each constant pattern in the URL,
          *  generate code to fail as soon as possible
          */
-        $rules = array();
+        $ntokens = count($this->tokens);
+        $rules   = array();
         foreach ($this->tokens as $id => $token) {
             if ($token->isConstant()) {
+                if (strlen($token->getValue()) == 1 && $id == $ntokens-1) {
+                    // detected an optional URL separator
+                    continue;
+                }
                 $newvar = PHP::Variable('offset_' . $this->id . '_' . $id);
                 $text   = PHP::String($token->getValue());
                 $length = strlen($token->getValue());
                 if ($id == 0 && count($this->tokens) == 1) {
-                    $rules[] = PHP::Expr('==', $variable, $text);
+                    $rule = PHP::Expr('==', $variable, $text);
                 } else {
                     if ($id == 0) {
-                        $rules[]  = PHP::Expr('===', PHP::Expr(PHP::Assign($newvar, PHP::Exec('strpos', $variable, $text))), 0);
+                        $rule = PHP::Expr('===', PHP::Expr(PHP::Assign($newvar, PHP::Exec('strpos', $variable, $text))), 0);
                     } else {
-                        $rules[]  = PHP::Expr('!==', PHP::Expr(PHP::Assign($newvar, PHP::Exec('strpos', $variable, $text, (isset($offset) ? PHP::Expr('+', $offset, 1) : 0)))), false);
+                        $rule = PHP::Expr('!==', PHP::Expr(PHP::Assign($newvar, PHP::Exec('strpos', $variable, $text, (isset($offset) ? PHP::Expr('+', $offset, 1) : 0)))), false);
                     }
                 }
-                $offset = $newvar;
+                if (isset($this->tokens[$id+1]) && $token->getValue() == '.' && $this->tokens[$id+1]->isOptional()) {
+                    $rules[] = PHP::Expr('OR', $rule, true);
+                    //$rules[] = $rule;
+                } else {
+                    $rules[] = $rule;
+                }
+                $offset  = $newvar;
             }
         }
 
@@ -93,7 +104,6 @@ class CRouting_Segment
          *  generate code to extract each variable within the segment,
          *  and validate it, if there is something to validate
          */
-        $ntokens = count($this->tokens);
         foreach ($this->tokens as $id => $token) {
             if ($token->isConstant()) {
                 continue;
@@ -116,7 +126,7 @@ class CRouting_Segment
 
                 if ($token->isOptional()) {
                     $default = PHP::Expr('!==', PHP::Expr(PHP::Assign($newvar, PHP::String($token->getDefault()))), false);
-                    $rules[] = PHP::Expr('OR', PHP::Assign($newvar, $exec), $default);
+                    $rules[] = PHP::Expr('AND', PHP::Expr('!==', $varStart, false), PHP::Expr(PHP::Assign($newvar, $exec)), 'OR', $default);
                 } else {
                     $rules[] = PHP::Expr(PHP::Assign($newvar, $exec));
                 }
