@@ -133,7 +133,6 @@ class CRouting
             require_once $base . '/CRouting/URL.php';
             require_once $base . '/CRouting/Segment.php';
             require_once $base . '/CRouting/Token.php';
-            require_once $base . '/CRouting/Requirement.php';
             require_once $base . '/PHP.php';
             require_once $base . '/PHP/Generator.php';
             $loaded = true;
@@ -142,74 +141,53 @@ class CRouting
         if (!is_array($data)) {
             throw new CRouting_Exception('Parser function must return an array');
         }
-        $data = array_reverse($data);
-        $compiled = array();
-        $size     = array('min' => 0xffffff, 'max' => 0);
+
+        $data   = array_reverse($data);
+        $rules  = array();
+        $method = false;
         foreach ($data as $name => $def) {
             $def['name'] = $name;
-            $url = new CRouting_URL($def);
-            $tmp = $url->getSize();
-            if ($tmp['min'] < $size['min']) {
-                $size['min'] = $tmp['min'];
-            }
-            if ($tmp['max'] > $size['max']) {
-                $size['max'] = $tmp['max'];
-            }
 
-            $compiled[] = $url;
+            $url     = new CRouting_URL($def);
+            $rules[] = new PHP_Comment($def['pattern']);
+            $rules[] = $url->getMatchCode();
+            $method |= $url->requireMethodChecking();
         }
 
         /* create match function {{{ */
         $matchFunction = new PHP_Function($this->callback, array(PHP::Variable('url')), array());
+        $matchFunction->addStmt(new PHP_Comment($this->file));
 
         /* clean up URL */
-        $matchFunction->addStmt(PHP::Assign('curl',   PHP::Exec('preg_replace', "/^\/+|(\/)+|\?.*/", '$1', PHP::Variable('url'))));
-        $matchFunction->addStmt(PHP::Assign('parts',  PHP::Exec('explode', PHP::String('/'), PHP::Variable('curl'))));
-        $matchFunction->addStmt(PHP::Assign('length', PHP::Exec('count', PHP::Variable('parts'))));
+        $vlength = PHP::Variable('length');
+        $vcurl   = PHP::Variable('curl');
+        $matchFunction->addStmt(PHP::Assign($vcurl,   PHP::Exec('preg_replace', "/(\/)+|\?.*/", '$1', PHP::Variable('url'))));
+        $matchFunction->addStmt(PHP::Assign($vlength, PHP::Exec('substr_count', PHP::Variable('curl'), PHP::String('/'))));
 
-        $last = PHP::Variable('parts', PHP::Expr('-', PHP::Variable('length'), 1));
-        $if = new PHP_If(PHP::Exec('empty', $last));
-        $if->addStmt(PHP::Exec('unset', $last));
-        $if->addStmt(PHP::Assign('length', PHP::Expr('-', PHP::Variable('length'), 1)));
+        $if = new PHP_If(PHP::Expr('==', PHP::Exec('substr', $vcurl, -1), PHP::String('/')));
+        $if->addStmt(PHP::Assign($vlength, PHP::Expr('-', $vlength, 1)));
 
         $matchFunction->addStmt($if);
 
-
-        $switch = new PHP_Switch(PHP::Variable('length'));
-        $useMethod = false;
-        for ($i = $size['min']; $i <= $size['max']; $i++) {
-            $case = new PHP_Case($i);
-            foreach ($compiled as $url) {
-                $code = $url->getMatchCode($i);
-                if ($code) {
-                    $useMethod |= $url->requireMethodChecking();
-                    $case->addStmt($code);
-                }
-            }
-            if ($case->getNodeSize()) {
-                $switch->addCase($case);
-            }
-        }
-
-        if ($useMethod) {
+        //$matchFunction->addStmt(PHP::Exec('var_dump', $vlength, $vcurl, PHP::Variable('url')));
+        
+        if ($method) {
             /* check if the request_method is set, if not, set it to empty to avoid warnings  */
             $method = PHP::Assign('hasMethod', PHP::Exec('isset', PHP::Variable('_SERVER', 'REQUEST_METHOD')));
             $matchFunction->addStmt($method);
         }
 
-        $matchFunction->addStmt($switch);
-        $matchFunction->addStmt(PHP::Exec('return', false));
+        foreach ($rules as $rule) {
+            $matchFunction->addStmt($rule);
+        }
+
         /* }}} */
+
+        $matchFunction->addStmt(PHP::Exec('return', false));
 
         // array to URL function {{{
         $createFunction = new PHP_Function($this->callback . 'Build', array(PHP::Variable('name'), PHP::Variable('parts')));
         $createFunction->addStmt(new PHP_Comment('array to URL'));
-        $switch = new PHP_Switch(PHP::Variable('name'));
-        foreach ($compiled as $url) {
-            $case = new PHP_Case($url->getName(), $url->getGeneratorCode());
-            $switch->addCase($case);
-        }
-        $createFunction->addStmt($switch);
         // }}}
 
         /* improve it later, to avoid concurrency issues (look at Haanga) */

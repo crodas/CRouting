@@ -167,6 +167,7 @@ abstract class PHP
             case '*': case '/': case '%':
             case '==': case '!=': case '===': case '!==':
             case '>': case '<': case '>=': case '<=':
+            case '?':
             case 'AND': case 'OR':
                 return new PHP_Operator($value);
             }

@@ -63,96 +63,13 @@ class CRouting_Segment
      *
      *  return PHP_Expr
      */
-    public function getValidationExpr($variable, &$return)
+    public function getValidationExpr()
     {   
-        /**
-         *  detect each constant pattern in the URL,
-         *  generate code to fail as soon as possible
-         */
-        $ntokens = count($this->tokens);
-        $rules   = array();
+        $regex = "";
         foreach ($this->tokens as $id => $token) {
-            if ($token->isConstant()) {
-                if (strlen($token->getValue()) == 1 && $id == $ntokens-1) {
-                    // detected an optional URL separator
-                    continue;
-                }
-                $newvar = PHP::Variable('offset_' . $this->id . '_' . $id);
-                $text   = PHP::String($token->getValue());
-                $length = strlen($token->getValue());
-                if ($id == 0 && count($this->tokens) == 1) {
-                    $rule = PHP::Expr('==', $variable, $text);
-                } else {
-                    if ($id == 0) {
-                        $rule = PHP::Expr('===', PHP::Expr(PHP::Assign($newvar, PHP::Exec('strpos', $variable, $text))), 0);
-                    } else {
-                        $rule = PHP::Expr('!==', PHP::Expr(PHP::Assign($newvar, PHP::Exec('strpos', $variable, $text, (isset($offset) ? PHP::Expr('+', $offset, 1) : 0)))), false);
-                    }
-                }
-                if (isset($this->tokens[$id+1]) && $token->getValue() == '.' && $this->tokens[$id+1]->isOptional()) {
-                    $rules[] = PHP::Expr('OR', $rule, true);
-                    //$rules[] = $rule;
-                } else {
-                    $rules[] = $rule;
-                }
-                $offset  = $newvar;
-            }
+            $regex .= $token;
         }
-
-
-        /**
-         *  generate code to extract each variable within the segment,
-         *  and validate it, if there is something to validate
-         */
-        foreach ($this->tokens as $id => $token) {
-            if ($token->isConstant()) {
-                continue;
-            }
-            $tokenVar = $variable;
-            if ($ntokens > 1) {
-                /* segment has constants and variables */
-                $newvar   = PHP::Variable('value_'  . $this->id . '_' . $id);
-                $varStart = PHP::Variable('offset_' . $this->id . '_' . ($id-1));
-                $offStart = PHP::Expr('+', 1, $varStart);
-                $offEnd   = PHP::Variable('offset_' . $this->id . '_' . ($id+1));
-                if ($id == 0) {
-                    $varStart = $offEnd;
-                    $exec = PHP::Exec('substr', $variable, 0, $offEnd);
-                } else if ($ntokens == $id+1) {
-                    $exec = PHP::Exec('substr', $variable, $offStart);
-                } else {
-                    $exec = PHP::Exec('substr', $variable, $offStart, PHP::Expr('-', $offEnd, PHP::Expr($offStart)));
-                }
-
-                if ($token->isOptional()) {
-                    $default = PHP::Expr('!==', PHP::Expr(PHP::Assign($newvar, PHP::String($token->getDefault()))), false);
-                    $rules[] = PHP::Expr('AND', PHP::Expr('!==', $varStart, false), PHP::Expr(PHP::Assign($newvar, $exec)), 'OR', $default);
-                } else {
-                    $rules[] = PHP::Expr(PHP::Assign($newvar, $exec));
-                }
-
-                $tokenVar = $newvar;
-            }
-
-            if ($token->hasRequirement()) {
-                $rule = $token->getValidation($tokenVar);
-                if (!$rule instanceof PHP) {
-                    continue;
-                }
-                if ($token->isOptional() && ($id > 0 || count($this->tokens) > 1)) {
-                    // append an OR if it is optional, and it is the first
-                    // or the only token in the segment
-                    $rule = PHP::Expr('OR', PHP::Expr('==', $varStart, false), $rule);
-                }
-                $rules[]  = $rule;
-                $return[] = array(PHP::String($token->getValue()), $tokenVar);
-            } else {
-                // 
-                $return[] = array(PHP::String($token->getValue()), $tokenVar);
-            }
-        }
-
-        return count($rules) > 0? PHP::ExprArray($rules) : false;
+        return $regex;
     }
     // }}}
 
@@ -174,7 +91,7 @@ class CRouting_Segment
             $token->setDefault($default);
         }
         if ($requirement) {
-            $token->setRequirement(new CRouting_Requirement($requirement));
+            $token->setRequirement($requirement);
         }
         $this->tokens[] = $token;
     }

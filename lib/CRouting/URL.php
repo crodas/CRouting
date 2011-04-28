@@ -218,9 +218,9 @@ class CRouting_URL
      *
      *  @return PHP
      */
-    public function getMatchCode($length)
+    public function getMatchCode()
     {
-        return isset($this->match[$length]) ? $this->match[$length] : false;
+        return $this->match;
     }
     // }}}
 
@@ -258,72 +258,70 @@ class CRouting_URL
      */
     protected function compileMatch()
     {
-        $size = $this->getSize();
-        $expr = array();
-        for ($i=$size['min']; $i <= $size['max']; $i++) {
-            $expr[$i] = $this->compileMatchRule($size['max'] - $i);
-        }
-        $this->match = $expr;
-    }
-    // }}}
-
-    // compileMatchRule {{{
-    /**
-     *  Compile a match rule for a given size
-     *
-     *  @param int $skip Number of optional segments to avoid
-     *
-     *  @return PHP
-     */
-    protected function compileMatchRule($skip=0)
-    {
-        $cur  = 0;
-        $expr = array();
-        $i    = 0;
-        $ret  = array();
-        foreach ($this->default as $key => $value) {
-            $ret[] = array(PHP::String($key), PHP::String($value));
-        }
+        $expr   = array();
+        $return = array(); 
+        $size   = $this->getSize();
 
         if ($this->requireMethodChecking()) {
-            $method    = new CRouting_Requirement($this->requirements['$method']);
-            $validator =  PHP::Expr('==', PHP::Variable('hasMethod'), true);
-            if (!$method->isString() || !in_array('ALL', $method->getOptions())) {
+            $validator = PHP::Expr('==', PHP::Variable('hasMethod'), true);
+            if (strpos($this->requirements['$method'], 'ALL')===false) {
                 // check if the rule doesn't contain the word ALL
                 $expr[] = PHP::Expr('==', PHP::Variable('hasMethod'), true);
-                $expr[] = $method->getExpr(PHP::Variable('_SERVER', 'REQUEST_METHOD'));
+                $expr[] = PHP::Exec('preg_match', '~' . $this->requirements['$method'] . '~', PHP::Variable('_SERVER', 'REQUEST_METHOD'));
             }
         }
 
+        $length = PHP::Variable('length');
+        if ($size['min'] == $size['max']) {
+            $expr[] = PHP::Expr('==', $length, $size['min']);
+        } else {
+            $expr[] = PHP::Expr('>=', $length, $size['min']);
+            $expr[] = PHP::Expr('<=', $length, $size['max']);
+        }
+
+        foreach ($this->default as $name => $value) {
+            $return[$name] = $value;
+        }
+
+
+        $regex = "~^";
         foreach ($this->cUrl as $id => $segment) {
-            if ($cur < $skip && $segment->isOptional()) {
-                $token = $segment->getToken(0);
-                $ret[] = array(PHP::String($token->getValue()), PHP::String($token->getDefault()));
-                $cur++;
-            } else {
-                $variable = PHP::Variable('parts', $i++);
-                $tempExpr = $segment->getValidationExpr($variable, &$ret);
-                if ($tempExpr instanceof PHP) {
-                    $expr[] = $tempExpr;
+            if ($segment->isOptional()) {
+                $regex .= '(';
+            }
+            $regex .= "/";
+            $regex .= $segment->getValidationExpr();
+            if ($segment->isOptional()) {
+                $regex .= ')?';
+            }
+            foreach($segment->getAll() as $token) {
+                if ($token->isVariable()) {
+                    $id  = $token->getValue();
+                    $ret = PHP::Variable('match', $id);
+                    if ($token->isOptional()) {
+                        $return[$id] = PHP::Expr('?', PHP::Exec('empty', $ret), PHP::String($token->getDefault()), $ret);
+                    } else {
+                        $return[$id] = $ret;
+                    }
                 }
             }
         }
-        $return = PHP::Exec('return', new PHP_Array($ret));
-        if (count($expr)) {
-            $base = new PHP_IF(PHP::ExprArray($expr));
-            $base->addStmt(new PHP_Comment($this->url));
-            $base->addStmt($return);
-        } else {
-            $base = $return;
-        }
-        return $base;
+        $regex .= "/?$~";
+        $expr[] = PHP::Exec('preg_match', $regex, PHP::Variable('curl'), PHP::Variable('match'));
+
+        $match  = new PHP_IF(PHP::ExprArray($expr));
+        $match->addStmt(PHP::Exec('return', PHP::zArray($return)));
+
+        $this->match = $match;
     }
     // }}}
+
 
     protected function compileGenerator()
     {
         $check = array();
         $code  = array();
+
         foreach ($this->cUrl as $segment) {
             foreach ($segment->getVariables() as $var) {
                 $varName = PHP::Variable('parts', $var->getValue());
@@ -336,6 +334,7 @@ class CRouting_URL
                 }
             }
         }
+
         if (count($check) > 0) {
             $if = new PHP_If(PHP::ExprArray($check, 'OR'));
             $if->addStmt(PHP::Exec('return', false));

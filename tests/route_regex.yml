@@ -8,9 +8,9 @@ regex1:
 regex2:
     pattern: /{action}
     requirements:
-        action: /^(:?bar|xxx)?foo$/
+        action: (:?bar|xxx)?foo
 
 regex3:
     pattern: /something/{action}
     requirements:
-        action: /^[a-zA-Z]+$/
+        action: [a-zA-Z]+

@@ -42,9 +42,10 @@ class templateTest extends PHPUnit_Framework_TestCase
         $route = new CRouting('route_simple.yml', './tmp/');
         $this->assertEquals($route->match('/'), array('controller' => 'foo', 'action' => 'bar'));
         $this->assertEquals($route->match('/bar'), array('controller' => 'bar', 'action' => 'index'));
+        $this->assertEquals($route->match('/bar/'), array('controller' => 'bar', 'action' => 'index'));
         $this->assertEquals($route->match('/foo/bar'), array('controller' => 'foo', 'action' => 'bar'));
-        $this->assertEquals($route->match('/post/1-foo-bar-bar-foo.xml'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo.xml', 'page' => 0));
-        $this->assertEquals($route->match('/post/1-foo-bar-bar-foo.xml/99'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo.xml', 'page' => 99));
+        $this->assertEquals($route->match('/post/1-foo-bar-bar-foo'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo', 'page' => 0));
+        $this->assertEquals($route->match('/post/1-foo-bar-bar-foo/99'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo', 'page' => 99));
         $this->assertEquals($route->match('/post/1-c/99'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'c', 'page' => 99));
         $this->assertEquals($route->match('/history/year/2011'), array('controller' => 'news', 'action' => 'history', 'year' => 2011, 'page' => 0));
         $this->assertEquals($route->match('/history/year/2010/1'), array('controller' => 'news', 'action' => 'history', 'year' => 2010, 'page' => 1));
@@ -66,15 +67,15 @@ class templateTest extends PHPUnit_Framework_TestCase
 
         /* error */
         $this->assertEquals($route->match('/post/1-/99'), false);
-        $this->assertEquals($route->match('/post/1-foo-bar-bar-foo.xml/xx'), false);
-        $this->assertEquals($route->match('/post/x-foo-bar-bar-foo.xml/99'), false);
+        $this->assertEquals($route->match('/post/1-foo-bar-bar-foo/xx'), false);
+        $this->assertEquals($route->match('/post/x-foo-bar-bar-foo/99'), false);
         $this->assertEquals($route->match('/foo/bar/xxx'), false);
         $this->assertEquals($route->match('/history/year/xxx'), false);
         $this->assertEquals($route->match('/history/year/2009/xxx'), false);
         $this->assertEquals($route->match('/y/2/x/88a99b00.asp'), false);
         $this->assertEquals($route->match('/y/2/x/88a99bxx.json'), false);
         $this->assertEquals($route->match('/y/2/x/88a99.88b00.json'), false);
-        $this->assertEquals($route->match('/page/00'), false);
+        $this->assertEquals($route->match('/page/x00'), false);
     }
 
     public function testRequestMethod()
@@ -97,8 +98,8 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('//'), array('controller' => 'foo', 'action' => 'bar'));
         $this->assertEquals($route->match('//bar'), array('controller' => 'bar', 'action' => 'index'));
         $this->assertEquals($route->match('//foo//bar'), array('controller' => 'foo', 'action' => 'bar'));
-        $this->assertEquals($route->match('//post//1-foo-bar-bar-foo.xml'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo.xml', 'page' => 0));
-        $this->assertEquals($route->match('//post//1-foo-bar-bar-foo.xml//99'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo.xml', 'page' => 99));
+        $this->assertEquals($route->match('//post//1-foo-bar-bar-foo'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo', 'page' => 0));
+        $this->assertEquals($route->match('//post//1-foo-bar-bar-foo//99'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo', 'page' => 99));
         $this->assertEquals($route->match('//post//1-c//99'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'c', 'page' => 99));
         $this->assertEquals($route->match('//history//year//2011'), array('controller' => 'news', 'action' => 'history', 'year' => 2011, 'page' => 0));
         $this->assertEquals($route->match('//history//year//2010//1'), array('controller' => 'news', 'action' => 'history', 'year' => 2010, 'page' => 1));

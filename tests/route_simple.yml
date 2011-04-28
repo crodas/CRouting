@@ -6,15 +6,15 @@ index:
     pattern: /{controller}/{action}
     defaults: {action: 'index'}
     requirements:
-        action: /^[a-zA-Z]+$/
+        action: "[a-zA-Z]+"
 
 
 blog_post:
     pattern: /post/{id}-{slug}/{page}
     defaults: {controller: 'news', action: 'index', page: 0}
     requirements:
-        page: /^\d+$/
-        id: /^[0-9]+$/
+        page: \d+
+        id: "[0-9]+"
 
 blog_post_two:
     pattern: /history/year/{year}/{page}
@@ -52,4 +52,4 @@ checkType:
     pattern: /page/{foo}
     defaults: {controller: 'page', action:'index'}
     requirements:
-        foo: {type: int}
+        foo: \d+

@@ -47,7 +47,7 @@ class CRounting_Token
     protected $value;
     protected $type;
     protected $default;
-    protected $requirement;
+    protected $requirement = '[a-zA-Z0-9-_]+';
 
     public function __construct($value, $type)
     {
@@ -68,9 +68,11 @@ class CRounting_Token
         return $this->default;
     }
 
-    public function setRequirement(CRouting_Requirement $requirement)
+    public function setRequirement($requirement)
     {
-        $this->requirement = $requirement;
+        if (is_string($requirement)) {
+            $this->requirement = $requirement;
+        }
     }
 
     public function getValidation($variable) 
@@ -111,4 +113,18 @@ class CRounting_Token
         return $this->isVariable() && !is_null($this->default);
     }
 
+    public function __toString()
+    {
+        $regex = '(';
+        if ($this->isVariable()) {
+            $regex .= '?P<' . $this->getValue() . '>' . $this->requirement;
+        } else {
+            $regex .= preg_quote($this->value, '|');
+        }
+        $regex .= ')';
+        if ($this->isOptional() || $this->value == '.') {
+            $regex .= '?';
+        }
+        return $regex;
+    }
 }
