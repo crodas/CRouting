@@ -77,32 +77,9 @@ class CRounting_Token
         }
     }
 
-    public function getValidation($variable) 
-    {
-        if (empty($this->requirement)) {
-            return false;
-        }
-        return $this->requirement->getExpr($variable);
-    }
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
     public function getValue()
     {
         return $this->value;
-    }
-
-    public function isConstant()
-    {
-        return $this->type == self::CONSTANT;
-    }
-
-    public function hasRequirement() 
-    {
-        return !empty($this->requirement);
     }
 
     public function isVariable()

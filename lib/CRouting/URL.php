@@ -227,19 +227,6 @@ class CRouting_URL
     }
     // }}}
 
-    // getGeneratorCode {{{
-    /**
-     *  Get code of the URL generator
-     *
-     *
-     *  @return PHP
-     */
-    public function getGeneratorCode()
-    {
-        return $this->generator;
-    }
-    // }}}
-
     // requireMethodChecking {{{
     /**
      *  Check if the current URL relies on request
