@@ -84,9 +84,9 @@ class CRouting_Segment
      *
      *  @return void
      */
-    public function addToken($type, $value, $default=null, $requirement=null)
+    public function addToken($type, $value, $default=null, $requirement=null, $optional=false)
     {
-        $token = new CRounting_Token($value, $type);
+        $token = new CRounting_Token($value, $type, $optional);
         if (!is_null($default)) {
             $token->setDefault($default);
         }

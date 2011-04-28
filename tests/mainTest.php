@@ -44,6 +44,7 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/bar'), array('controller' => 'bar', 'action' => 'index'));
         $this->assertEquals($route->match('/bar/'), array('controller' => 'bar', 'action' => 'index'));
         $this->assertEquals($route->match('/foo/bar'), array('controller' => 'foo', 'action' => 'bar'));
+        $this->assertEquals($route->match('/post/1'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => '', 'page' => 0));
         $this->assertEquals($route->match('/post/1-foo-bar-bar-foo'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo', 'page' => 0));
         $this->assertEquals($route->match('/post/1-foo-bar-bar-foo/99'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo', 'page' => 99));
         $this->assertEquals($route->match('/post/1-c/99'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'c', 'page' => 99));
@@ -65,8 +66,6 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/rest/archive.foo.'), array('controller' => 'rest', 'action' => 'foo', 'id' => 'archive', 'format' => 'json'));
         $this->assertEquals($route->match('/rest/archive.foo.php'), array('controller' => 'rest', 'action' => 'foo', 'id' => 'archive', 'format' => 'php'));
 
-        /* error */
-        $this->assertEquals($route->match('/post/1-/99'), false);
         $this->assertEquals($route->match('/post/1-foo-bar-bar-foo/xx'), false);
         $this->assertEquals($route->match('/post/x-foo-bar-bar-foo/99'), false);
         $this->assertEquals($route->match('/foo/bar/xxx'), false);
@@ -114,7 +113,6 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('//y//2//x//88a99b00.json'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'json'));
 
         //* error *//
-        $this->assertEquals($route->match('//post//1-//99'), false);
         $this->assertEquals($route->match('//post//1-foo-bar-bar-foo.xml//xx'), false);
         $this->assertEquals($route->match('//post//x-foo-bar-bar-foo.xml//99'), false);
         $this->assertEquals($route->match('//foo//bar//xxx'), false);
@@ -149,31 +147,6 @@ class templateTest extends PHPUnit_Framework_TestCase
         CRouting::setParser(array('sfYaml', 'load'));
     }
 
-    public function testInvalidCallbackValidation()
-    {
-        try {
-            $route = new CRouting('route_callback_invalid.yml', './tmp/');
-            $this->assertTrue(false);
-        } catch (CRouting_Exception $e) {
-            $this->assertTrue(true);
-        }
-    }
-
-    public function testCallbackValidation()
-    {
-        $route = new CRouting('route_callback.yml', './tmp/');
-        $this->assertEquals($route->match('/foo'), array('action' => 'foo', 'page' => 0));
-        $this->assertEquals($route->match('/foo/1'), array('action' => 'foo', 'page' => 1));
-        $this->assertEquals($route->match('/foo/x'), false);
-        $this->assertEquals($route->match('/bar'), array('action' => 'bar', 'page' => 0));
-        $this->assertEquals($route->match('/bar/1'), array('action' => 'bar', 'page' => 1));
-        $this->assertEquals($route->match('/foo/x'), false);
-        $this->assertEquals($route->match('/xfoo'), false);
-        $this->assertEquals($route->match('/xfoo/1'), false);
-        $this->assertEquals($route->match('/xbar'), false);
-        $this->assertEquals($route->match('/xbar/1'), false);
-    }
-
     public function __demo($str)
     {
         $this->assertEquals($str, __FILE__);
@@ -185,7 +158,7 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($str, __FILE__);
     }
 
-    public function testSimpleGeneration()
+    public function ztestSimpleGeneration()
     {
         $route = new CRouting('route_simple.yml', './tmp/');
         $this->assertEquals($route->generate('default'), '/');

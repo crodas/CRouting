@@ -6,9 +6,10 @@ function route23eebc1b52a0b91d7057893ad71e8618($url) {
 	if (substr($curl,-1) == '/') {
 		$length = $length - 1;
 	}
-	/* / */
-	if (($length == 0) AND preg_match('~^/?$~',$curl,$match)) {
-		return(array('foo' => 1));
+	if ($length == 0) {
+		if (preg_match('~^/?$~',$curl,$match)) {
+			return(array('foo' => 1));
+		}
 	}
 	return(false);
 }

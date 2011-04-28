@@ -47,15 +47,17 @@ class CRounting_Token
     protected $value;
     protected $type;
     protected $default;
+    protected $optional;
     protected $requirement = '[a-zA-Z0-9-_]+';
 
-    public function __construct($value, $type)
+    public function __construct($value, $type, $optional)
     {
         if ($type != 'variable' && $type != 'constant') {
             throw new Exception('Token type must be variable or constant');
         }
-        $this->value = $value;
-        $this->type  = $type == 'constant' ? self::CONSTANT : self::VARIABLE;
+        $this->value    = $value;
+        $this->optional = $optional;
+        $this->type     = $type == 'constant' ? self::CONSTANT : self::VARIABLE;
     }
 
     public function setDefault($default)
@@ -110,7 +112,7 @@ class CRounting_Token
 
     public function isOptional()
     {
-        return $this->isVariable() && !is_null($this->default);
+        return  $this->optional || ($this->isVariable() && !is_null($this->default)); 
     }
 
     public function __toString()
@@ -119,10 +121,10 @@ class CRounting_Token
         if ($this->isVariable()) {
             $regex .= '?P<' . $this->getValue() . '>' . $this->requirement;
         } else {
-            $regex .= preg_quote($this->value, '|');
+            $regex .= ':?' . preg_quote($this->value, '|');
         }
         $regex .= ')';
-        if ($this->isOptional() || $this->value == '.') {
+        if ($this->isOptional()) {
             $regex .= '?';
         }
         return $regex;

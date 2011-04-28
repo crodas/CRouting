@@ -1,6 +1,0 @@
-functionxx:
-    pattern: /{action}/{page}
-    defaults: {page:0}
-    requirements:
-        action: {callback: 'mycustom_validator_wrong'}
-        page: \d+

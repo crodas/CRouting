@@ -59,7 +59,7 @@ class CRouting_URL
             }
         }
 
-        foreach (array('requirements', 'defaults') as $optional) {
+        foreach (array('requirements', 'defaults', 'optional') as $optional) {
             if (empty($definition[$optional])) {
                 $definition[$optional] = array();
             }
@@ -69,6 +69,7 @@ class CRouting_URL
         $this->url          = $definition['pattern'];
         $this->default      = $definition['defaults'];
         $this->requirements = $definition['requirements'];
+        $this->optional     = $definition['optional'];
         $this->cUrl         = $this->compilePattern();
         $this->compileMatch();
         $this->compileGenerator();
@@ -111,7 +112,8 @@ class CRouting_URL
                         throw new Exception("Variables cannot be together, they need to be separated by a constant. Position $i");
                     }
                     if (!empty($buffer)) {
-                        $parts[$id]->addToken('constant', $buffer);
+                        $optional = in_array($buffer, $this->optional);
+                        $parts[$id]->addToken('constant', $buffer, null, null, $optional);
                         $buffer  = '';
                     }
                     $state = self::E_VARIABLE;
@@ -124,8 +126,8 @@ class CRouting_URL
                         throw new Exception("Empty variables not allowed at position $i");
                     }
 
-                    $default = null;
-                    $rule    = null;
+                    $default  = null;
+                    $rule     = null;
                     if (isset($this->default[$buffer])) {
                         $default = $this->default[$buffer];
                         unset($this->default[$buffer]);
@@ -146,7 +148,8 @@ class CRouting_URL
                 if ($state != self::E_STRING) {
                     throw new Exception("Unexpected end {$part}");
                 }
-                $parts[$id]->addToken('constant', $buffer);
+                $optional = in_array($buffer, $this->optional);
+                $parts[$id]->addToken('constant', $buffer, null, null, $optional);
             }
         }
 
@@ -269,14 +272,6 @@ class CRouting_URL
                 $expr[] = PHP::Expr('==', PHP::Variable('hasMethod'), true);
                 $expr[] = PHP::Exec('preg_match', '~' . $this->requirements['$method'] . '~', PHP::Variable('_SERVER', 'REQUEST_METHOD'));
             }
-        }
-
-        $length = PHP::Variable('length');
-        if ($size['min'] == $size['max']) {
-            $expr[] = PHP::Expr('==', $length, $size['min']);
-        } else {
-            $expr[] = PHP::Expr('>=', $length, $size['min']);
-            $expr[] = PHP::Expr('<=', $length, $size['max']);
         }
 
         foreach ($this->default as $name => $value) {

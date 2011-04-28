@@ -13,4 +13,4 @@ regex2:
 regex3:
     pattern: /something/{action}
     requirements:
-        action: [a-zA-Z]+
+        action: "[a-zA-Z]+"

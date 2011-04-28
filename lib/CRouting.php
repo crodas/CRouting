@@ -138,6 +138,7 @@ class CRouting
             $loaded = true;
         }  
         $data = call_user_func(self::$parser, $this->file);
+
         if (!is_array($data)) {
             throw new CRouting_Exception('Parser function must return an array');
         }
@@ -148,9 +149,16 @@ class CRouting
         foreach ($data as $name => $def) {
             $def['name'] = $name;
 
-            $url     = new CRouting_URL($def);
-            $rules[] = new PHP_Comment($def['pattern']);
-            $rules[] = $url->getMatchCode();
+            $url  = new CRouting_URL($def);
+            $size = implode("_", $url->getSize());
+
+            if (!isset($rules[$size])) {
+                $rules[$size] = array();
+            }
+            //$rules[] = new PHP_Comment($def['pattern']);
+            $rules[$size][] = $url->getMatchCode();
+
+            /* do we ever need to check method ? */
             $method |= $url->requireMethodChecking();
         }
 
@@ -177,8 +185,21 @@ class CRouting
             $matchFunction->addStmt($method);
         }
 
-        foreach ($rules as $rule) {
-            $matchFunction->addStmt($rule);
+        foreach ($rules as $size => $zrules) {
+            list($min, $max) = explode('_', $size);
+            if ($min == $max) {
+                $expr = PHP::Expr('==', $vlength, $min);
+            } else {
+                $expr = PHP::ExprArray(array(
+                        PHP::Expr('>=', $vlength, $min),
+                        PHP::Expr('<=', $vlength, $max)
+                ));
+            }
+            $if = new PHP_If($expr);
+            foreach ($zrules as $rule) {
+                $if->addStmt($rule);
+            }
+            $matchFunction->addStmt($if);
         }
 
         /* }}} */

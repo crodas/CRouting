@@ -11,7 +11,8 @@ index:
 
 blog_post:
     pattern: /post/{id}-{slug}/{page}
-    defaults: {controller: 'news', action: 'index', page: 0}
+    optional:  [-]
+    defaults: {controller: 'news', action: 'index', page: 0, slug:''}
     requirements:
         page: \d+
         id: "[0-9]+"
@@ -25,12 +26,13 @@ blog_post_two:
 
 dotdot:
     pattern: /rest/{id}.{action}.{format}
+    optional: [.]
     defaults: {controller: 'rest', 'action': 'status', 'format': 'json'}
 
 longOptional:
     pattern: /y/{three}/x/{four}a{five}b{six}.{ext}
     defaults: {controller: 'news', action: 'history', three:3, four:4, five:5, six:6, ext: php}
-    optionals: [.]
+    optional: [.]
     requirements:
         three: \d+
         four: \d+
