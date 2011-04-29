@@ -37,46 +37,23 @@ class templateTest extends PHPUnit_Framework_TestCase
         @mkdir('tmp');
     }
 
-    public function testSimpleCRouting()
+    /**
+     *  @dataProvider routesProvider
+     */
+    public function testSimpleCRouting($url, $expected)
     {
         $route = new CRouting('route_simple.yml', './tmp/');
-        $this->assertEquals($route->match('/'), array('controller' => 'foo', 'action' => 'bar'));
-        $this->assertEquals($route->match('/bar'), array('controller' => 'bar', 'action' => 'index'));
-        $this->assertEquals($route->match('/bar/'), array('controller' => 'bar', 'action' => 'index'));
-        $this->assertEquals($route->match('/foo/bar'), array('controller' => 'foo', 'action' => 'bar'));
-        $this->assertEquals($route->match('/post/1'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => '', 'page' => 0));
-        $this->assertEquals($route->match('/post/1-foo-bar-bar-foo'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo', 'page' => 0));
-        $this->assertEquals($route->match('/post/1-foo-bar-bar-foo/99'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo', 'page' => 99));
-        $this->assertEquals($route->match('/post/1-c/99'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'c', 'page' => 99));
-        $this->assertEquals($route->match('/history/year/2011'), array('controller' => 'news', 'action' => 'history', 'year' => 2011, 'page' => 0));
-        $this->assertEquals($route->match('/history/year/2010/1'), array('controller' => 'news', 'action' => 'history', 'year' => 2010, 'page' => 1));
-        $this->assertEquals($route->match('/history/year/2009'), array('controller' => 'news', 'action' => 'history', 'year' => 2009, 'page' => 0));
-        $this->assertEquals($route->match('/y/x/ab.'), array('controller' => 'news', 'action' => 'history', 'three' => 3, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'));
-        $this->assertEquals($route->match('/y/x/ab'), array('controller' => 'news', 'action' => 'history', 'three' => 3, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'));
-        $this->assertEquals($route->match('/y/2/x/ab'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'));
-        $this->assertEquals($route->match('/y/2/x/ab.'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'));
-        $this->assertEquals($route->match('/y/2/x/ab.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'xml'));
-        $this->assertEquals($route->match('/y/2/x/a99b.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 99, 'six' => 6, 'ext' => 'xml'));
-        $this->assertEquals($route->match('/y/2/x/88a99b.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 6, 'ext' => 'xml'));
-        $this->assertEquals($route->match('/y/2/x/88a99b00.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'xml'));
-        $this->assertEquals($route->match('/y/2/x/88a99b00.json'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'json'));
-        $this->assertEquals($route->match('/page/99'), array('controller' => 'page', 'action' => 'index', 'foo' => 99));
+        $this->assertEquals($expected, $route->match($url));
+    }
 
-        $this->assertEquals($route->match('/rest/archive'), array('controller' => 'rest', 'action' => 'status', 'id' => 'archive', 'format' => 'json'));
-        $this->assertEquals($route->match('/rest/archive..'), array('controller' => 'rest', 'action' => 'status', 'id' => 'archive', 'format' => 'json'));
-        $this->assertEquals($route->match('/rest/archive.foo.'), array('controller' => 'rest', 'action' => 'foo', 'id' => 'archive', 'format' => 'json'));
-        $this->assertEquals($route->match('/rest/archive.foo.php'), array('controller' => 'rest', 'action' => 'foo', 'id' => 'archive', 'format' => 'php'));
-        $this->assertEquals($route->match('/{foo}rest'), array('foo' => 'rest'));
-
-        $this->assertEquals($route->match('/post/1-foo-bar-bar-foo/xx'), false);
-        $this->assertEquals($route->match('/post/x-foo-bar-bar-foo/99'), false);
-        $this->assertEquals($route->match('/foo/bar/xxx'), false);
-        $this->assertEquals($route->match('/history/year/xxx'), false);
-        $this->assertEquals($route->match('/history/year/2009/xxx'), false);
-        $this->assertEquals($route->match('/y/2/x/88a99b00.asp'), false);
-        $this->assertEquals($route->match('/y/2/x/88a99bxx.json'), false);
-        $this->assertEquals($route->match('/y/2/x/88a99.88b00.json'), false);
-        $this->assertEquals($route->match('/page/x00'), false);
+    /**
+     *  @dataProvider dblroutesProvider
+     */
+    public function testDoubleSlashes($url, $expected)
+    {
+        $route = new CRouting('route_simple.yml', './tmp/');
+        $this->assertTrue(is_int(strpos($url, '//')));
+        $this->assertEquals($expected, $route->match($url));
     }
 
     public function testRequestMethod()
@@ -91,37 +68,6 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/'), array('controller' => 'foo', 'action' => 'bar'));
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->assertEquals($route->match('/get/foo'), array('controller' => 'request', 'action' => 'check'));
-    }
-
-    public function testDoubleSlashes()
-    {
-        $route = new CRouting('route_simple.yml', './/tmp//');
-        $this->assertEquals($route->match('//'), array('controller' => 'foo', 'action' => 'bar'));
-        $this->assertEquals($route->match('//bar'), array('controller' => 'bar', 'action' => 'index'));
-        $this->assertEquals($route->match('//foo//bar'), array('controller' => 'foo', 'action' => 'bar'));
-        $this->assertEquals($route->match('//post//1-foo-bar-bar-foo'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo', 'page' => 0));
-        $this->assertEquals($route->match('//post//1-foo-bar-bar-foo//99'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo', 'page' => 99));
-        $this->assertEquals($route->match('//post//1-c//99'), array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'c', 'page' => 99));
-        $this->assertEquals($route->match('//history//year//2011'), array('controller' => 'news', 'action' => 'history', 'year' => 2011, 'page' => 0));
-        $this->assertEquals($route->match('//history//year//2010//1'), array('controller' => 'news', 'action' => 'history', 'year' => 2010, 'page' => 1));
-        $this->assertEquals($route->match('//history//year//2009'), array('controller' => 'news', 'action' => 'history', 'year' => 2009, 'page' => 0));
-        $this->assertEquals($route->match('//history//year//2009'), array('controller' => 'news', 'action' => 'history', 'year' => 2009, 'page' => 0));
-        $this->assertEquals($route->match('//y//x//ab.'), array('controller' => 'news', 'action' => 'history', 'three' => 3, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'));
-        $this->assertEquals($route->match('//y//2//x//ab.'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'));
-        $this->assertEquals($route->match('//y//2//x//ab.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'xml'));
-        $this->assertEquals($route->match('//y//2//x//a99b.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 99, 'six' => 6, 'ext' => 'xml'));
-        $this->assertEquals($route->match('//y//2//x//88a99b.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 6, 'ext' => 'xml'));
-        $this->assertEquals($route->match('//y//2//x//88a99b00.xml'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'xml'));
-        $this->assertEquals($route->match('//y//2//x//88a99b00.json'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'json'));
-
-        //* error *//
-        $this->assertEquals($route->match('//post//1-foo-bar-bar-foo.xml//xx'), false);
-        $this->assertEquals($route->match('//post//x-foo-bar-bar-foo.xml//99'), false);
-        $this->assertEquals($route->match('//foo//bar//xxx'), false);
-        $this->assertEquals($route->match('//history//year//xxx'), false);
-        $this->assertEquals($route->match('//history//year//2009//xxx'), false);
-        $this->assertEquals($route->match('//y//2//x//88a99b00.asp'), false);
-        $this->assertEquals($route->match('//y/2/x/88a99bxx.json'), false);
     }
 
     public function testCustomParser()
@@ -202,6 +148,69 @@ class templateTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('CRouting_Exception');
         new CRouting_URL(array('name' => 'bar'));
+    }
+
+    public function dblroutesProvider()
+    {
+        $params = array();
+        foreach ($this->routesProvider() as $param) {
+            $param[0] = str_replace('/', '//', $param[0]);
+            $params[] = $param;
+        }
+        return $params;
+    }
+
+    public function routesProvider()
+    {
+        $routes = array(
+            '/' => array('controller' => 'foo', 'action' => 'bar'),
+            '/bar' => array('controller' => 'bar', 'action' => 'index'),
+            '/bar/' => array('controller' => 'bar', 'action' => 'index'),
+            '/foo/bar' => array('controller' => 'foo', 'action' => 'bar'),
+            '/post/1' => array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => '', 'page' => 0),
+            '/post/1-foo-bar-bar-foo' => array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo', 'page' => 0),
+            '/post/1-foo-bar-bar-foo/99' => array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'foo-bar-bar-foo', 'page' => 99),
+            '/post/1-c/99' => array('controller' => 'news', 'action' => 'index', 'id' => 1, 'slug' => 'c', 'page' => 99),
+            '/history/year/2011' => array('controller' => 'news', 'action' => 'history', 'year' => 2011, 'page' => 0),
+            '/history/year/2010/1' => array('controller' => 'news', 'action' => 'history', 'year' => 2010, 'page' => 1),
+            '/history/year/2009' => array('controller' => 'news', 'action' => 'history', 'year' => 2009, 'page' => 0),
+            '/y/x/ab.' => array('controller' => 'news', 'action' => 'history', 'three' => 3, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'),
+            '/y/x/ab' => array('controller' => 'news', 'action' => 'history', 'three' => 3, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'),
+            '/y/2/x/ab' => array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'),
+            '/y/2/x/ab.' => array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'php'),
+            '/y/2/x/ab.xml' => array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 5, 'six' => 6, 'ext' => 'xml'),
+            '/y/2/x/a99b.xml' => array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 4, 'five' => 99, 'six' => 6, 'ext' => 'xml'),
+            '/y/2/x/88a99b.xml' => array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 6, 'ext' => 'xml'),
+            '/y/2/x/88a99b00.xml' => array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'xml'),
+            '/y/2/x/88a99b00.json' => array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'json'),
+            '/page/99' => array('controller' => 'page', 'action' => 'index', 'foo' => 99),
+            
+            '/rest/archive' => array('controller' => 'rest', 'action' => 'status', 'id' => 'archive', 'format' => 'json'),
+            '/rest/archive..' => array('controller' => 'rest', 'action' => 'status', 'id' => 'archive', 'format' => 'json'),
+            '/rest/archive.foo.' => array('controller' => 'rest', 'action' => 'foo', 'id' => 'archive', 'format' => 'json'),
+            '/rest/archive.foo.php' => array('controller' => 'rest', 'action' => 'foo', 'id' => 'archive', 'format' => 'php'),
+            '/{foo}rest' => array('foo' => 'rest'),
+
+
+            /* errors */
+            '/post/1-foo-bar-bar-foo/xx' => false,
+            '/post/x-foo-bar-bar-foo/99' => false,
+            '/foo/bar/xxx' => false,
+            '/history/year/xxx' => false,
+            '/history/year/2009/xxx' => false,
+            '/y/2/x/88a99b00.asp' => false,
+            '/y/2/x/88a99bxx.json' => false,
+            '/y/2/x/88a99.88b00.json' => false,
+            '/page/x00' => false,
+
+        );
+
+        $params = array();
+        foreach ($routes as $route => $match) {
+            $params[] = array($route, $match);
+        }
+
+        return $params;
     }
 
     public function tplErrProvider()
