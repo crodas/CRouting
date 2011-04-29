@@ -62,6 +62,7 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/y/2/x/88a99b00.json'), array('controller' => 'news', 'action' => 'history', 'three' => 2, 'four' => 88, 'five' => 99, 'six' => 00, 'ext' => 'json'));
         $this->assertEquals($route->match('/page/99'), array('controller' => 'page', 'action' => 'index', 'foo' => 99));
 
+        $this->assertEquals($route->match('/rest/archive'), array('controller' => 'rest', 'action' => 'status', 'id' => 'archive', 'format' => 'json'));
         $this->assertEquals($route->match('/rest/archive..'), array('controller' => 'rest', 'action' => 'status', 'id' => 'archive', 'format' => 'json'));
         $this->assertEquals($route->match('/rest/archive.foo.'), array('controller' => 'rest', 'action' => 'foo', 'id' => 'archive', 'format' => 'json'));
         $this->assertEquals($route->match('/rest/archive.foo.php'), array('controller' => 'rest', 'action' => 'foo', 'id' => 'archive', 'format' => 'php'));

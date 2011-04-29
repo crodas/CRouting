@@ -156,7 +156,7 @@ class CRouting
                 $rules[$size] = array();
             }
             //$rules[] = new PHP_Comment($def['pattern']);
-            $rules[$size][] = $url->getMatchCode();
+            $rules[$size][] = $url;
 
             /* do we ever need to check method ? */
             $method |= $url->requireMethodChecking();
@@ -197,7 +197,8 @@ class CRouting
             }
             $if = new PHP_If($expr);
             foreach ($zrules as $rule) {
-                $if->addStmt($rule);
+                $if->addStmt(new PHP_Comment((string)$rule));
+                $if->addStmt($rule->getMatchCode());
             }
             $matchFunction->addStmt($if);
         }
