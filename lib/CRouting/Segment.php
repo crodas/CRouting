@@ -48,11 +48,6 @@ class CRouting_Segment
         $this->id = $id;
     }
 
-    public function getToken($id)
-    {
-        return isset($this->tokens[$id]) ? $this->tokens[$id] : null;
-    }
-
     // getValidationExpr {{{
     /**
      *  Generate the Expression to validate the current segment. Also,
@@ -86,7 +81,7 @@ class CRouting_Segment
      */
     public function addToken($type, $value, $default=null, $requirement=null, $optional=false)
     {
-        $token = new CRounting_Token($value, $type, $optional);
+        $token = new CRouting_Token($value, $type, $optional);
         if (!is_null($default)) {
             $token->setDefault($default);
         }

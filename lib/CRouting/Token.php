@@ -38,7 +38,7 @@
 /**
  *
  */
-class CRounting_Token
+class CRouting_Token
 {
     const CONSTANT = 1;
     const VARIABLE = 2;
@@ -53,7 +53,7 @@ class CRounting_Token
     public function __construct($value, $type, $optional)
     {
         if ($type != 'variable' && $type != 'constant') {
-            throw new Exception('Token type must be variable or constant');
+            throw new CRouting_Exception('Token type must be variable or constant');
         }
         $this->value    = $value;
         $this->optional = $optional;

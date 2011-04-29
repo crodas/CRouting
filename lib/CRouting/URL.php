@@ -38,7 +38,7 @@
 class CRouting_URL
 {
     const E_STRING   = 0;
-    const E_VARIABLE = 0;
+    const E_VARIABLE = 1;
 
     protected $cUrl;
     protected $url;
@@ -50,9 +50,6 @@ class CRouting_URL
 
     public function __construct(Array $definition)
     {
-        if (!is_array($definition)) {
-            throw new CRouting_Exception('Invalid argument');
-        }
         foreach (array('pattern', 'name') as $check) {
             if (empty($definition[$check])) {
                 throw new CRouting_Exception('Missing ' . $check . ' or it is empty');
@@ -106,10 +103,10 @@ class CRouting_URL
                     break;
                 case '{':
                     if ($state != self::E_STRING) {
-                        throw new Exception("Malformed URL part {$part}, unexpected { at position {$i}");
+                        throw new CRouting_Exception("Malformed URL part {$part}, unexpected { at position {$i}");
                     }
                     if (empty($buffer) && $i > 0) {
-                        throw new Exception("Variables cannot be together, they need to be separated by a constant. Position $i");
+                        throw new CRouting_Exception("Variables cannot be together, they need to be separated by a constant. Position $i");
                     }
                     if (!empty($buffer)) {
                         $optional = in_array($buffer, $this->optional);
@@ -120,10 +117,10 @@ class CRouting_URL
                     break;
                 case '}':
                     if ($state != self::E_VARIABLE) {
-                        throw new Exception("Malformed URL part {$part}, unexpected } at position {$i}");
+                        throw new CRouting_Exception("Malformed URL part {$part}, unexpected } at position {$i}");
                     }
                     if (empty($buffer)) {
-                        throw new Exception("Empty variables not allowed at position $i");
+                        throw new CRouting_Exception("Empty variables not allowed at position $i");
                     }
 
                     $default  = null;
@@ -144,10 +141,12 @@ class CRouting_URL
                     break;
                 }
             }
+
+            if ($state != self::E_STRING) {
+                throw new CRouting_Exception("Unexpected end {$part}");
+            }
+
             if (!empty($buffer)) {
-                if ($state != self::E_STRING) {
-                    throw new Exception("Unexpected end {$part}");
-                }
                 $optional = in_array($buffer, $this->optional);
                 $parts[$id]->addToken('constant', $buffer, null, null, $optional);
             }
@@ -176,18 +175,6 @@ class CRouting_URL
         }
 
         return $parts;
-    }
-    // }}}
-
-    // getName() {{{
-    /**
-     *  Get URL Name
-     *
-     *  @return string 
-     */
-    public function getName()
-    {
-        return $this->name;
     }
     // }}}
 

@@ -1,0 +1,2 @@
+error1:
+    pattern: /foo/{}action

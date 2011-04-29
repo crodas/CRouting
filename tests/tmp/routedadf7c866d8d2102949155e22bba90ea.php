@@ -7,6 +7,12 @@ function routedadf7c866d8d2102949155e22bba90ea($url) {
 		$length = $length - 1;
 	}
 	$hasMethod = isset($_SERVER['REQUEST_METHOD']);
+	if ($length == 1) {
+		/* /\{foo\}{foo} */
+		if (preg_match('~^/(:?\\{foo\\})(?P<foo>[a-zA-Z0-9-_]+)/?$~',$curl,$match)) {
+			return(array('foo' => $match['foo']));
+		}
+	}
 	if ($length == 2) {
 		/* /page/{foo} */
 		if (preg_match('~^/(:?page)/(?P<foo>\\d+)/?$~',$curl,$match)) {

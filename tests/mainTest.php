@@ -66,6 +66,7 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/rest/archive..'), array('controller' => 'rest', 'action' => 'status', 'id' => 'archive', 'format' => 'json'));
         $this->assertEquals($route->match('/rest/archive.foo.'), array('controller' => 'rest', 'action' => 'foo', 'id' => 'archive', 'format' => 'json'));
         $this->assertEquals($route->match('/rest/archive.foo.php'), array('controller' => 'rest', 'action' => 'foo', 'id' => 'archive', 'format' => 'php'));
+        $this->assertEquals($route->match('/{foo}rest'), array('foo' => 'rest'));
 
         $this->assertEquals($route->match('/post/1-foo-bar-bar-foo/xx'), false);
         $this->assertEquals($route->match('/post/x-foo-bar-bar-foo/99'), false);
@@ -184,4 +185,41 @@ class templateTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($route->match('/something/xxxFOO'), array('action' => 'xxxFOO'));
         $this->assertEquals($route->match('/something/xxxOO9'), false);
     }
+
+    public function testInvalidToken() 
+    {
+        $this->setExpectedException('CRouting_Exception');
+        new CRouting_Token('foo', 'bar', 1);
+    }
+
+    public function testMissingName() 
+    {
+        $this->setExpectedException('CRouting_Exception');
+        new CRouting_URL(array('pattern' => 'bar'));
+    }
+
+    public function testMissingPattern() 
+    {
+        $this->setExpectedException('CRouting_Exception');
+        new CRouting_URL(array('name' => 'bar'));
+    }
+
+    public function tplErrProvider()
+    {
+        $files = array();
+        foreach (glob("error/*.yml") as $file) {
+            $files[] = array($file);
+        }
+        return $files;
+    }
+
+    /** 
+     * @dataProvider tplErrProvider
+     */
+    public function testErrors($file)
+    {
+        $this->setExpectedException('CRouting_Exception');
+        $route = new CRouting($file, './tmp/');
+    }
+
 }

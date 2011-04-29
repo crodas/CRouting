@@ -55,3 +55,6 @@ checkType:
     defaults: {controller: 'page', action:'index'}
     requirements:
         foo: \d+
+
+escape:
+    pattern: /\{foo\}{foo}
