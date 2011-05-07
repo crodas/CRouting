@@ -93,11 +93,6 @@ class CRouting
     }
     // }}}
 
-    function generate($type, $args=array())
-    {
-        return call_user_func($this->callback . 'Build', $type, $args);
-    }
-
     // match {{{
     /**
      *  Public interface to test if a given URL matches
@@ -155,7 +150,6 @@ class CRouting
             if (!isset($rules[$size])) {
                 $rules[$size] = array();
             }
-            //$rules[] = new PHP_Comment($def['pattern']);
             $rules[$size][] = $url;
 
             /* do we ever need to check method ? */
@@ -203,9 +197,10 @@ class CRouting
             $matchFunction->addStmt($if);
         }
 
-        /* }}} */
 
         $matchFunction->addStmt(PHP::Exec('return', false));
+
+        /* }}} */
 
         // array to URL function {{{
         $createFunction = new PHP_Function($this->callback . 'Build', array(PHP::Variable('name'), PHP::Variable('parts')));

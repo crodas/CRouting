@@ -23,7 +23,7 @@ function routedadf7c866d8d2102949155e22bba90ea($url) {
 			return(array('controller' => 'request', 'action' => 'check'));
 		}
 		/* /rest/{id}.{action}.{format} */
-		if (preg_match('~^/(:?rest)/(?P<id>[a-zA-Z0-9-_]+)(:?\\.)?(?P<action>[a-zA-Z0-9-_]+)?(:?\\.)?(?P<format>[a-zA-Z0-9-_]+)?/?$~',$curl,$match)) {
+		if (preg_match('~^/(:?rest)/(?P<id>[a-zA-Z0-9-_]+)((:?\\.)(?P<action>[a-zA-Z0-9-_]+))?((:?\\.)(?P<format>[a-zA-Z0-9-_]+))?/?$~',$curl,$match)) {
 			return(array('controller' => 'rest', 'id' => $match['id'], 'action' => empty($match['action']) ? 'status' : $match['action'], 'format' => empty($match['format']) ? 'json' : $match['format']));
 		}
 	}
@@ -39,7 +39,7 @@ function routedadf7c866d8d2102949155e22bba90ea($url) {
 	}
 	if (($length >= 3) AND ($length <= 4)) {
 		/* /y/{three}/x/{four}a{five}b{six}.{ext} */
-		if (preg_match('~^/(:?y)(/(?P<three>\\d+)?)?/(:?x)/(?P<four>\\d+)?(:?a)(?P<five>\\d+)?(:?b)(?P<six>\\d+)?(:?\\.)?(?P<ext>php|xml|json)?/?$~',$curl,$match)) {
+		if (preg_match('~^/(:?y)(/(?P<three>\\d+)?)?/(:?x)/(?P<four>\\d+)?(:?a)(?P<five>\\d+)?(:?b)(?P<six>\\d+)?((:?\\.)(?P<ext>php|xml|json))?/?$~',$curl,$match)) {
 			return(array('controller' => 'news', 'action' => 'history', 'three' => empty($match['three']) ? 3 : $match['three'], 'four' => empty($match['four']) ? 4 : $match['four'], 'five' => empty($match['five']) ? 5 : $match['five'], 'six' => empty($match['six']) ? 6 : $match['six'], 'ext' => empty($match['ext']) ? 'php' : $match['ext']));
 		}
 		/* /history/year/{year}/{page} */
@@ -49,7 +49,7 @@ function routedadf7c866d8d2102949155e22bba90ea($url) {
 	}
 	if (($length >= 2) AND ($length <= 3)) {
 		/* /post/{id}-{slug}/{page} */
-		if (preg_match('~^/(:?post)/(?P<id>[0-9]+)(:?\\-)?(?P<slug>[a-zA-Z0-9-_]+)?(/(?P<page>\\d+)?)?/?$~',$curl,$match)) {
+		if (preg_match('~^/(:?post)/(?P<id>[0-9]+)((:?\\-)(?P<slug>[a-zA-Z0-9-_]+))?(/(?P<page>\\d+)?)?/?$~',$curl,$match)) {
 			return(array('controller' => 'news', 'action' => 'index', 'id' => $match['id'], 'slug' => empty($match['slug']) ? '' : $match['slug'], 'page' => empty($match['page']) ? 0 : $match['page']));
 		}
 	}

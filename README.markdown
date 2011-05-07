@@ -10,27 +10,6 @@ TODO:
 =====
 
   * support for /* (so it can match with the base URL and anything else)
-  * Add concept of URL separators (single char):
-
-        foo:
-            pattern: /{foo}.{ext}
-            defaults: {ext: json}
-            requirements:
-                ext: php|json|xml
-        bar:
-            pattern: /{foo}bar{ext}
-            defaults: {ext: json}
-            requirements:
-                ext: php|json|xml
-            
-        --
-        /something (match)
-        /something.php (match)
-        /extrabarjson (match)
-        /extrabarphp (match)
-        /extrabar (match)
-        /something. (will fail)
-
   * Add validation to the URL generation function. Return nice URL if some optional parametter is missing
   * add docblock for methods
   * documentation

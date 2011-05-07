@@ -61,8 +61,22 @@ class CRouting_Segment
     public function getValidationExpr()
     {   
         $regex = "";
+        $opened = false;
         foreach ($this->tokens as $id => $token) {
-            $regex .= $token;
+            $expr = (string) $token;
+            $next = isset($this->tokens[$id+1]) ? $this->tokens[$id+1] : null;
+            if ($token->isOptional()) {
+                if ($token->isVariable()) {
+                    if ($opened) {
+                        $expr .= ')';
+                    }
+                    $expr .= '?';
+                } else if ($next->isVariable()) {
+                    $expr = '(' . $expr;
+                    $opened = true;
+                }
+            }
+            $regex .= $expr;
         }
         return $regex;
     }

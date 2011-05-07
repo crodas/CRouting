@@ -94,16 +94,11 @@ class CRouting_Token
 
     public function __toString()
     {
-        $regex = '(';
         if ($this->isVariable()) {
-            $regex .= '?P<' . $this->getValue() . '>' . $this->requirement;
+            $regex = '?P<' . $this->getValue() . '>' . $this->requirement;
         } else {
-            $regex .= ':?' . preg_quote($this->value, '|');
+            $regex = ':?' . preg_quote($this->value, '|');
         }
-        $regex .= ')';
-        if ($this->isOptional()) {
-            $regex .= '?';
-        }
-        return $regex;
+        return '(' . $regex . ')';
     }
 }
